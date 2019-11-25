@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const core_1 = require("@aws-cdk/core");
+const pipeline_stack_1 = require("../lib/pipeline-stack");
+const app = new core_1.App();
+new pipeline_stack_1.PipelineStack(app, "PipelineStack");
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicGlwZWxpbmUuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJwaXBlbGluZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFDQSx3Q0FBb0M7QUFDcEMsMERBQXNEO0FBRXRELE1BQU0sR0FBRyxHQUFHLElBQUksVUFBRyxFQUFFLENBQUM7QUFFdEIsSUFBSSw4QkFBYSxDQUFDLEdBQUcsRUFBRSxlQUFlLENBQUMsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbIiMhL3Vzci9iaW4vZW52IG5vZGVcbmltcG9ydCB7IEFwcCB9IGZyb20gXCJAYXdzLWNkay9jb3JlXCI7XG5pbXBvcnQgeyBQaXBlbGluZVN0YWNrIH0gZnJvbSBcIi4uL2xpYi9waXBlbGluZS1zdGFja1wiO1xuXG5jb25zdCBhcHAgPSBuZXcgQXBwKCk7XG5cbm5ldyBQaXBlbGluZVN0YWNrKGFwcCwgXCJQaXBlbGluZVN0YWNrXCIpO1xuIl19

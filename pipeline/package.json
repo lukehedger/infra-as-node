@@ -1,0 +1,27 @@
+{
+  "name": "pipeline",
+  "private": true,
+  "version": "0.0.0",
+  "bin": {
+    "aws": "bin/pipeline.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy",
+    "diff": "cdk diff",
+    "synth": "cdk synth",
+    "test": "jest",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.15.0",
+    "@types/jest": "24.0.18",
+    "jest": "24.9.0",
+    "ts-jest": "24.0.2",
+    "typescript": "3.6.2"
+  },
+  "dependencies": {
+    "@aws-cdk/core": "1.15.0"
+  }
+}

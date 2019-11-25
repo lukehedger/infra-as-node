@@ -1,0 +1,177 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": [
+      {
+        "id": "Tree",
+        "path": "Tree"
+      },
+      {
+        "id": "InfrastructureStack",
+        "path": "InfrastructureStack",
+        "children": [
+          {
+            "id": "PingHandler",
+            "path": "InfrastructureStack/PingHandler",
+            "children": [
+              {
+                "id": "ServiceRole",
+                "path": "InfrastructureStack/PingHandler/ServiceRole",
+                "children": [
+                  {
+                    "id": "Resource",
+                    "path": "InfrastructureStack/PingHandler/ServiceRole/Resource"
+                  }
+                ]
+              },
+              {
+                "id": "Code",
+                "path": "InfrastructureStack/PingHandler/Code",
+                "children": [
+                  {
+                    "id": "Stage",
+                    "path": "InfrastructureStack/PingHandler/Code/Stage"
+                  },
+                  {
+                    "id": "AssetBucket",
+                    "path": "InfrastructureStack/PingHandler/Code/AssetBucket"
+                  }
+                ]
+              },
+              {
+                "id": "Resource",
+                "path": "InfrastructureStack/PingHandler/Resource"
+              }
+            ]
+          },
+          {
+            "id": "AssetParameters",
+            "path": "InfrastructureStack/AssetParameters",
+            "children": [
+              {
+                "id": "0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892",
+                "path": "InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892",
+                "children": [
+                  {
+                    "id": "S3Bucket",
+                    "path": "InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/S3Bucket"
+                  },
+                  {
+                    "id": "S3VersionKey",
+                    "path": "InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/S3VersionKey"
+                  },
+                  {
+                    "id": "ArtifactHash",
+                    "path": "InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/ArtifactHash"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "PingEndpoint",
+            "path": "InfrastructureStack/PingEndpoint",
+            "children": [
+              {
+                "id": "Resource",
+                "path": "InfrastructureStack/PingEndpoint/Resource"
+              },
+              {
+                "id": "Deployment",
+                "path": "InfrastructureStack/PingEndpoint/Deployment",
+                "children": [
+                  {
+                    "id": "Resource",
+                    "path": "InfrastructureStack/PingEndpoint/Deployment/Resource"
+                  }
+                ]
+              },
+              {
+                "id": "DeploymentStage.prod",
+                "path": "InfrastructureStack/PingEndpoint/DeploymentStage.prod",
+                "children": [
+                  {
+                    "id": "Resource",
+                    "path": "InfrastructureStack/PingEndpoint/DeploymentStage.prod/Resource"
+                  }
+                ]
+              },
+              {
+                "id": "Endpoint",
+                "path": "InfrastructureStack/PingEndpoint/Endpoint"
+              },
+              {
+                "id": "CloudWatchRole",
+                "path": "InfrastructureStack/PingEndpoint/CloudWatchRole",
+                "children": [
+                  {
+                    "id": "Resource",
+                    "path": "InfrastructureStack/PingEndpoint/CloudWatchRole/Resource"
+                  }
+                ]
+              },
+              {
+                "id": "Account",
+                "path": "InfrastructureStack/PingEndpoint/Account"
+              },
+              {
+                "id": "Default",
+                "path": "InfrastructureStack/PingEndpoint/Default",
+                "children": [
+                  {
+                    "id": "{proxy+}",
+                    "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}",
+                    "children": [
+                      {
+                        "id": "Resource",
+                        "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}/Resource"
+                      },
+                      {
+                        "id": "ANY",
+                        "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}/ANY",
+                        "children": [
+                          {
+                            "id": "ApiPermission.InfrastructureStackPingEndpointD1787B9A.ANY..{proxy+}",
+                            "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}/ANY/ApiPermission.InfrastructureStackPingEndpointD1787B9A.ANY..{proxy+}"
+                          },
+                          {
+                            "id": "ApiPermission.Test.InfrastructureStackPingEndpointD1787B9A.ANY..{proxy+}",
+                            "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}/ANY/ApiPermission.Test.InfrastructureStackPingEndpointD1787B9A.ANY..{proxy+}"
+                          },
+                          {
+                            "id": "Resource",
+                            "path": "InfrastructureStack/PingEndpoint/Default/{proxy+}/ANY/Resource"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ANY",
+                    "path": "InfrastructureStack/PingEndpoint/Default/ANY",
+                    "children": [
+                      {
+                        "id": "ApiPermission.InfrastructureStackPingEndpointD1787B9A.ANY..",
+                        "path": "InfrastructureStack/PingEndpoint/Default/ANY/ApiPermission.InfrastructureStackPingEndpointD1787B9A.ANY.."
+                      },
+                      {
+                        "id": "ApiPermission.Test.InfrastructureStackPingEndpointD1787B9A.ANY..",
+                        "path": "InfrastructureStack/PingEndpoint/Default/ANY/ApiPermission.Test.InfrastructureStackPingEndpointD1787B9A.ANY.."
+                      },
+                      {
+                        "id": "Resource",
+                        "path": "InfrastructureStack/PingEndpoint/Default/ANY/Resource"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

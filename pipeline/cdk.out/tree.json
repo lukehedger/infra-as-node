@@ -1,0 +1,17 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": [
+      {
+        "id": "Tree",
+        "path": "Tree"
+      },
+      {
+        "id": "PipelineStack",
+        "path": "PipelineStack"
+      }
+    ]
+  }
+}
