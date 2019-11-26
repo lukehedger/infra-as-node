@@ -40,7 +40,7 @@ export class PipelineStack extends Stack {
         version: "0.2",
         phases: {
           install: {
-            commands: "yarn"
+            commands: ["ls -la", "yarn"]
           },
           build: {
             commands: ["yarn build", "yarn synth"]
