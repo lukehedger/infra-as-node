@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "deploy": "cdk deploy",
-    "destroy": "cdk destroy",
+    "deploy": "cdk deploy PipelineStack",
+    "destroy": "cdk destroy PipelineStack",
     "diff": "cdk diff",
     "synth": "cdk synth",
     "test": "jest",
@@ -22,6 +22,10 @@
     "typescript": "3.6.2"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.15.0"
+    "@aws-cdk/aws-codebuild": "1.18.0",
+    "@aws-cdk/aws-codepipeline": "1.18.0",
+    "@aws-cdk/aws-codepipeline-actions": "1.18.0",
+    "@aws-cdk/aws-lambda": "1.18.0",
+    "@aws-cdk/core": "^1.18.0"
   }
 }

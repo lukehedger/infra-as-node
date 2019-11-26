@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import { App } from "@aws-cdk/core";
+import { InfrastructureStack } from "../../infrastructure/lib/infrastructure-stack";
 import { PipelineStack } from "../lib/pipeline-stack";
 
 const app = new App();
 
-new PipelineStack(app, "PipelineStack");
+const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
+
+new PipelineStack(app, "PipelineStack", {
+  lambdaCode: infrastructureStack.lambdaCode
+});

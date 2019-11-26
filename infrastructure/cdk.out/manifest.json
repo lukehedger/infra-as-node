@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.16.0",
   "artifacts": {
     "Tree": {
       "type": "cdk:tree",
@@ -14,24 +14,14 @@
         "templateFile": "InfrastructureStack.template.json"
       },
       "metadata": {
-        "/InfrastructureStack": [
+        "/InfrastructureStack/PingHandler/ServiceRole/Resource": [
           {
-            "type": "aws:cdk:asset",
-            "data": {
-              "path": "asset.0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892",
-              "id": "0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892",
-              "packaging": "zip",
-              "sourceHash": "0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892",
-              "s3BucketParameter": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892S3Bucket1A6043A4",
-              "s3KeyParameter": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892S3VersionKeyFE17ECD0",
-              "artifactHashParameter": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892ArtifactHash6FBA5E1D"
-            },
+            "type": "aws:cdk:logicalId",
+            "data": "PingHandlerServiceRole46086423",
             "trace": [
-              "InfrastructureStack.addFileAsset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/stack.js:335:23)",
-              "new Asset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-s3-assets/lib/asset.js:27:32)",
-              "AssetCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:135:26)",
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:73:33)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
+              "new Role (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-iam/lib/role.js:35:22)",
+              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:59:35)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:10:22)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -42,14 +32,32 @@
             ]
           }
         ],
-        "/InfrastructureStack/PingHandler/ServiceRole/Resource": [
+        "/InfrastructureStack/PingHandler/LambdaSourceBucketNameParameter": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PingHandlerServiceRole46086423",
+            "data": "PingHandlerLambdaSourceBucketNameParameterFD9C9518",
             "trace": [
-              "new Role (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-iam/lib/role.js:35:22)",
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:59:35)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
+              "CfnParametersCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:172:37)",
+              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:67:33)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:10:22)",
+              "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
+              "Module._compile (internal/modules/cjs/loader.js:971:30)",
+              "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
+              "Module.load (internal/modules/cjs/loader.js:822:32)",
+              "Function.Module._load (internal/modules/cjs/loader.js:730:14)",
+              "Function.Module.runMain (internal/modules/cjs/loader.js:1051:12)",
+              "internal/main/run_main_module.js:16:11"
+            ]
+          }
+        ],
+        "/InfrastructureStack/PingHandler/LambdaSourceObjectKeyParameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PingHandlerLambdaSourceObjectKeyParameterF75007B3",
+            "trace": [
+              "CfnParametersCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:177:36)",
+              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:67:33)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:10:22)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -65,71 +73,8 @@
             "type": "aws:cdk:logicalId",
             "data": "PingHandler50068074",
             "trace": [
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:75:26)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
-              "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
-              "Module._compile (internal/modules/cjs/loader.js:971:30)",
-              "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
-              "Module.load (internal/modules/cjs/loader.js:822:32)",
-              "Function.Module._load (internal/modules/cjs/loader.js:730:14)",
-              "Function.Module.runMain (internal/modules/cjs/loader.js:1051:12)",
-              "internal/main/run_main_module.js:16:11"
-            ]
-          }
-        ],
-        "/InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/S3Bucket": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892S3Bucket1A6043A4",
-            "trace": [
-              "new FileAssetParameters (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/private/asset-parameters.js:11:36)",
-              "InfrastructureStack.addFileAsset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/stack.js:325:22)",
-              "new Asset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-s3-assets/lib/asset.js:27:32)",
-              "AssetCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:135:26)",
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:73:33)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
-              "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
-              "Module._compile (internal/modules/cjs/loader.js:971:30)",
-              "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
-              "Module.load (internal/modules/cjs/loader.js:822:32)",
-              "Function.Module._load (internal/modules/cjs/loader.js:730:14)",
-              "Function.Module.runMain (internal/modules/cjs/loader.js:1051:12)",
-              "internal/main/run_main_module.js:16:11"
-            ]
-          }
-        ],
-        "/InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/S3VersionKey": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892S3VersionKeyFE17ECD0",
-            "trace": [
-              "new FileAssetParameters (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/private/asset-parameters.js:15:35)",
-              "InfrastructureStack.addFileAsset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/stack.js:325:22)",
-              "new Asset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-s3-assets/lib/asset.js:27:32)",
-              "AssetCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:135:26)",
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:73:33)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
-              "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
-              "Module._compile (internal/modules/cjs/loader.js:971:30)",
-              "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
-              "Module.load (internal/modules/cjs/loader.js:822:32)",
-              "Function.Module._load (internal/modules/cjs/loader.js:730:14)",
-              "Function.Module.runMain (internal/modules/cjs/loader.js:1051:12)",
-              "internal/main/run_main_module.js:16:11"
-            ]
-          }
-        ],
-        "/InfrastructureStack/AssetParameters/0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892/ArtifactHash": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AssetParameters0ee54f4304e0f3481c2e365f6aafbc29e326de683d45575b3c605287b5fc4892ArtifactHash6FBA5E1D",
-            "trace": [
-              "new FileAssetParameters (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/private/asset-parameters.js:19:38)",
-              "InfrastructureStack.addFileAsset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/core/lib/stack.js:325:22)",
-              "new Asset (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-s3-assets/lib/asset.js:27:32)",
-              "AssetCode.bind (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/code.js:135:26)",
-              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:73:33)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:9:22)",
+              "new Function (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-lambda/lib/function.js:69:26)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:10:22)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -147,7 +92,7 @@
             "trace": [
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:28:26)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -167,7 +112,7 @@
               "LambdaRestApi.configureDeployment (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:164:38)",
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:42:14)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -187,7 +132,7 @@
               "LambdaRestApi.configureDeployment (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:172:36)",
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:42:14)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -206,7 +151,7 @@
               "LambdaRestApi.configureDeployment (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:173:13)",
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:42:14)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -226,7 +171,7 @@
               "LambdaRestApi.configureCloudWatchRole (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:182:22)",
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:45:18)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -245,7 +190,7 @@
               "LambdaRestApi.configureCloudWatchRole (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:186:26)",
               "new RestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/restapi.js:45:18)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:17:9)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -265,7 +210,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:201:9)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -291,7 +236,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -317,7 +262,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -339,7 +284,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -365,7 +310,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -391,7 +336,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
@@ -413,7 +358,7 @@
               "new ProxyResource (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:209:35)",
               "RootResource.addProxy (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/resource.js:20:16)",
               "new LambdaRestApi (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/node_modules/@aws-cdk/aws-apigateway/lib/lambda-api.js:19:23)",
-              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:14:9)",
+              "new InfrastructureStack (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/lib/infrastructure-stack.js:15:9)",
               "Object.<anonymous> (/Users/luke/dev/lukehedger/infra-as-node/infrastructure/bin/infrastructure.js:7:1)",
               "Module._compile (internal/modules/cjs/loader.js:971:30)",
               "Object.Module._extensions..js (internal/modules/cjs/loader.js:1011:10)",
