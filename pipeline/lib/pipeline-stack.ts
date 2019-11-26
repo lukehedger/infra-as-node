@@ -42,9 +42,7 @@ export class PipelineStack extends Stack {
         buildSpec: BuildSpec.fromObject({
           version: "0.2",
           phases: {
-            install: {
-              commands: "npm install --prefix infrastructure"
-            },
+            install: { commands: "npm install --prefix infrastructure" },
             build: {
               commands: [
                 "npm run build --prefix infrastructure",
@@ -65,16 +63,19 @@ export class PipelineStack extends Stack {
 
     const infrastructureBuildOutput = new Artifact("infrastructureBuildOutput");
 
+    const infrastructureBuildAction = new CodeBuildAction({
+      actionName: "Infrastructure_Build",
+      project: infrastructureBuild,
+      input: sourceOutput,
+      outputs: [infrastructureBuildOutput]
+    });
+
     const pingLambdaBuild = new PipelineProject(this, "PingLambdaBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
-          install: {
-            commands: "npm install --prefix ping"
-          },
-          build: {
-            commands: "npm run build --prefix ping"
-          }
+          install: { commands: "npm install --prefix ping" },
+          build: { commands: "npm run build --prefix ping" }
         },
         artifacts: {
           "base-directory": "./ping",
@@ -88,9 +89,25 @@ export class PipelineStack extends Stack {
 
     const pingLambdaBuildOutput = new Artifact("PingLambdaBuildOutput");
 
-    const parameterOverrides = props
-      ? props.pingLambdaCode.assign(pingLambdaBuildOutput.s3Location)
-      : {};
+    const pingLambdaBuildAction = new CodeBuildAction({
+      actionName: "Ping_Lambda_Build",
+      project: pingLambdaBuild,
+      input: sourceOutput,
+      outputs: [pingLambdaBuildOutput]
+    });
+
+    const deployAction = new CloudFormationCreateUpdateStackAction({
+      actionName: "Infrastructure_CFN_Deploy",
+      templatePath: infrastructureBuildOutput.atPath(
+        "cdk.out/InfrastructureStack.template.json"
+      ),
+      stackName: "InfrastructureStack",
+      adminPermissions: true,
+      parameterOverrides: {
+        ...props?.pingLambdaCode.assign(pingLambdaBuildOutput.s3Location)
+      },
+      extraInputs: [pingLambdaBuildOutput]
+    });
 
     new Pipeline(this, "Pipeline", {
       stages: [
@@ -100,35 +117,11 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Build",
-          actions: [
-            new CodeBuildAction({
-              actionName: "Ping_Lambda_Build",
-              project: pingLambdaBuild,
-              input: sourceOutput,
-              outputs: [pingLambdaBuildOutput]
-            }),
-            new CodeBuildAction({
-              actionName: "Infrastructure_Build",
-              project: infrastructureBuild,
-              input: sourceOutput,
-              outputs: [infrastructureBuildOutput]
-            })
-          ]
+          actions: [pingLambdaBuildAction, infrastructureBuildAction]
         },
         {
           stageName: "Deploy",
-          actions: [
-            new CloudFormationCreateUpdateStackAction({
-              actionName: "Infrastructure_CFN_Deploy",
-              templatePath: infrastructureBuildOutput.atPath(
-                "cdk.out/InfrastructureStack.template.json"
-              ),
-              stackName: "InfrastructureStack",
-              adminPermissions: true,
-              parameterOverrides: parameterOverrides,
-              extraInputs: [pingLambdaBuildOutput]
-            })
-          ]
+          actions: [deployAction]
         }
       ]
     });
