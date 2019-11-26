@@ -1,0 +1,4 @@
+- Use Yarn workspace
+- Can Build actions be combined into one single build, with multiple outputs?
+  I don't think so, as it would be difficult (impossible?) to distinguish artifacts...?
+- Can a second Lambda be trivially added?

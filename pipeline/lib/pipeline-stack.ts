@@ -65,7 +65,7 @@ export class PipelineStack extends Stack {
 
     const infrastructureBuildOutput = new Artifact("infrastructureBuildOutput");
 
-    const lambdaBuild = new PipelineProject(this, "LambdaBuild", {
+    const pingLambdaBuild = new PipelineProject(this, "PingLambdaBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
@@ -103,7 +103,7 @@ export class PipelineStack extends Stack {
           actions: [
             new CodeBuildAction({
               actionName: "Ping_Lambda_Build",
-              project: lambdaBuild,
+              project: pingLambdaBuild,
               input: sourceOutput,
               outputs: [pingLambdaBuildOutput]
             }),
@@ -119,11 +119,11 @@ export class PipelineStack extends Stack {
           stageName: "Deploy",
           actions: [
             new CloudFormationCreateUpdateStackAction({
-              actionName: "Ping_Lambda_CFN_Deploy",
+              actionName: "Infrastructure_CFN_Deploy",
               templatePath: infrastructureBuildOutput.atPath(
                 "cdk.out/InfrastructureStack.template.json"
               ),
-              stackName: "InfrastructureDeploymentStack",
+              stackName: "InfrastructureStack",
               adminPermissions: true,
               parameterOverrides: parameterOverrides,
               extraInputs: [pingLambdaBuildOutput]
