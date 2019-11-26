@@ -121,7 +121,7 @@ export class PipelineStack extends Stack {
             new CloudFormationCreateUpdateStackAction({
               actionName: "Ping_Lambda_CFN_Deploy",
               templatePath: infrastructureBuildOutput.atPath(
-                "InfrastructureStack.template.json"
+                "cdk.out/InfrastructureStack.template.json"
               ),
               stackName: "InfrastructureDeploymentStack",
               adminPermissions: true,
