@@ -40,10 +40,13 @@ export class PipelineStack extends Stack {
         version: "0.2",
         phases: {
           install: {
-            commands: ["ls -la", "yarn"]
+            commands: "npm install --prefix pipeline"
           },
           build: {
-            commands: ["yarn build", "yarn synth"]
+            commands: [
+              "npm run build --prefix pipeline",
+              "npm run synth --prefix pipeline"
+            ]
           }
         },
         artifacts: {
@@ -63,14 +66,14 @@ export class PipelineStack extends Stack {
         version: "0.2",
         phases: {
           install: {
-            commands: ["cd ../lambda", "yarn"]
+            commands: "npm install --prefix lambda"
           },
           build: {
-            commands: "yarn build"
+            commands: "npm run build --prefix lambda"
           }
         },
         artifacts: {
-          "base-directory": "../lambda",
+          "base-directory": "./lambda",
           files: ["lib/ping.js", "node_modules/**/*"]
         }
       }),
