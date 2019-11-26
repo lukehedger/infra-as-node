@@ -5,7 +5,10 @@ import { PipelineStack } from "../lib/pipeline-stack";
 
 const app = new App();
 
-const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
+const infrastructureStack = new InfrastructureStack(
+  app,
+  "InfrastructureDeploymentStack2"
+);
 
 new PipelineStack(app, "PipelineStack", {
   pingLambdaCode: infrastructureStack.pingLambdaCode

@@ -123,7 +123,7 @@ export class PipelineStack extends Stack {
               templatePath: infrastructureBuildOutput.atPath(
                 "cdk.out/InfrastructureStack.template.json"
               ),
-              stackName: "InfrastructureStack",
+              stackName: "InfrastructureDeploymentStack2",
               adminPermissions: true,
               parameterOverrides: parameterOverrides,
               extraInputs: [pingLambdaBuildOutput]

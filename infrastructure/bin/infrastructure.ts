@@ -4,4 +4,4 @@ import { InfrastructureStack } from "../lib/infrastructure-stack";
 
 const app = new App();
 
-new InfrastructureStack(app, "InfrastructureStack");
+new InfrastructureStack(app, "InfrastructureStack2");
