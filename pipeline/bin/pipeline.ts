@@ -8,5 +8,5 @@ const app = new App();
 const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
 
 new PipelineStack(app, "PipelineStack", {
-  lambdaCode: infrastructureStack.lambdaCode
+  pingLambdaCode: infrastructureStack.pingLambdaCode
 });

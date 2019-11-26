@@ -8,15 +8,15 @@ import {
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
-  public readonly lambdaCode: CfnParametersCode;
+  public readonly pingLambdaCode: CfnParametersCode;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    this.lambdaCode = Code.cfnParameters();
+    this.pingLambdaCode = Code.cfnParameters();
 
     const ping = new Function(this, "PingHandler", {
-      code: this.lambdaCode,
+      code: this.pingLambdaCode,
       handler: "ping.handler",
       runtime: Runtime.NODEJS_10_X
     });

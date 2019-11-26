@@ -14,7 +14,7 @@ import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
-  readonly lambdaCode: CfnParametersCode;
+  readonly pingLambdaCode: CfnParametersCode;
 }
 
 export class PipelineStack extends Stack {
@@ -35,45 +35,49 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK
     });
 
-    const cdkBuild = new PipelineProject(this, "CdkBuild", {
-      buildSpec: BuildSpec.fromObject({
-        version: "0.2",
-        phases: {
-          install: {
-            commands: "npm install --prefix pipeline"
+    const infrastructureBuild = new PipelineProject(
+      this,
+      "InfrastructureBuild",
+      {
+        buildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          phases: {
+            install: {
+              commands: "npm install --prefix infrastructure"
+            },
+            build: {
+              commands: [
+                "npm run build --prefix infrastructure",
+                "npm run synth --prefix infrastructure"
+              ]
+            }
           },
-          build: {
-            commands: [
-              "npm run build --prefix pipeline",
-              "npm run synth --prefix pipeline"
-            ]
+          artifacts: {
+            "base-directory": "cdk.out",
+            files: ["InfrastructureStack.template.json"]
           }
-        },
-        artifacts: {
-          "base-directory": "cdk.out",
-          files: ["InfrastructureStack.template.json"]
+        }),
+        environment: {
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
         }
-      }),
-      environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
       }
-    });
+    );
 
-    const cdkBuildOutput = new Artifact("CdkBuildOutput");
+    const infrastructureBuildOutput = new Artifact("infrastructureBuildOutput");
 
     const lambdaBuild = new PipelineProject(this, "LambdaBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
           install: {
-            commands: "npm install --prefix lambda"
+            commands: "npm install --prefix ping"
           },
           build: {
-            commands: "npm run build --prefix lambda"
+            commands: "npm run build --prefix ping"
           }
         },
         artifacts: {
-          "base-directory": "./lambda",
+          "base-directory": "./ping",
           files: ["lib/ping.js", "node_modules/**/*"]
         }
       }),
@@ -82,10 +86,10 @@ export class PipelineStack extends Stack {
       }
     });
 
-    const lambdaBuildOutput = new Artifact("LambdaBuildOutput");
+    const pingLambdaBuildOutput = new Artifact("PingLambdaBuildOutput");
 
     const parameterOverrides = props
-      ? props.lambdaCode.assign(lambdaBuildOutput.s3Location)
+      ? props.pingLambdaCode.assign(pingLambdaBuildOutput.s3Location)
       : {};
 
     new Pipeline(this, "Pipeline", {
@@ -98,16 +102,16 @@ export class PipelineStack extends Stack {
           stageName: "Build",
           actions: [
             new CodeBuildAction({
-              actionName: "Lambda_Build",
+              actionName: "Ping_Lambda_Build",
               project: lambdaBuild,
               input: sourceOutput,
-              outputs: [lambdaBuildOutput]
+              outputs: [pingLambdaBuildOutput]
             }),
             new CodeBuildAction({
-              actionName: "CDK_Build",
-              project: cdkBuild,
+              actionName: "Infrastructure_Build",
+              project: infrastructureBuild,
               input: sourceOutput,
-              outputs: [cdkBuildOutput]
+              outputs: [infrastructureBuildOutput]
             })
           ]
         },
@@ -115,14 +119,14 @@ export class PipelineStack extends Stack {
           stageName: "Deploy",
           actions: [
             new CloudFormationCreateUpdateStackAction({
-              actionName: "Lambda_CFN_Deploy",
-              templatePath: cdkBuildOutput.atPath(
+              actionName: "Ping_Lambda_CFN_Deploy",
+              templatePath: infrastructureBuildOutput.atPath(
                 "InfrastructureStack.template.json"
               ),
               stackName: "InfrastructureDeploymentStack",
               adminPermissions: true,
               parameterOverrides: parameterOverrides,
-              extraInputs: [lambdaBuildOutput]
+              extraInputs: [pingLambdaBuildOutput]
             })
           ]
         }

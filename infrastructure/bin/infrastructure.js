@@ -1,8 +1,0 @@
-#!/usr/bin/env node
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("@aws-cdk/core");
-const infrastructure_stack_1 = require("../lib/infrastructure-stack");
-const app = new core_1.App();
-new infrastructure_stack_1.InfrastructureStack(app, "InfrastructureStack");
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5mcmFzdHJ1Y3R1cmUuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJpbmZyYXN0cnVjdHVyZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFDQSx3Q0FBb0M7QUFDcEMsc0VBQWtFO0FBRWxFLE1BQU0sR0FBRyxHQUFHLElBQUksVUFBRyxFQUFFLENBQUM7QUFFdEIsSUFBSSwwQ0FBbUIsQ0FBQyxHQUFHLEVBQUUscUJBQXFCLENBQUMsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbIiMhL3Vzci9iaW4vZW52IG5vZGVcbmltcG9ydCB7IEFwcCB9IGZyb20gXCJAYXdzLWNkay9jb3JlXCI7XG5pbXBvcnQgeyBJbmZyYXN0cnVjdHVyZVN0YWNrIH0gZnJvbSBcIi4uL2xpYi9pbmZyYXN0cnVjdHVyZS1zdGFja1wiO1xuXG5jb25zdCBhcHAgPSBuZXcgQXBwKCk7XG5cbm5ldyBJbmZyYXN0cnVjdHVyZVN0YWNrKGFwcCwgXCJJbmZyYXN0cnVjdHVyZVN0YWNrXCIpO1xuIl19

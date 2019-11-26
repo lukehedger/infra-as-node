@@ -1,5 +1,5 @@
 {
-  "name": "lambda",
+  "name": "ping",
   "private": true,
   "version": "0.0.0",
   "main": "lib/ping.js",
