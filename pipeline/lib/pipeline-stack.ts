@@ -53,8 +53,8 @@ export class PipelineStack extends Stack {
             }
           },
           artifacts: {
-            "base-directory": "cdk.out",
-            files: ["InfrastructureStack.template.json"]
+            "base-directory": "./infrastructure",
+            files: ["cdk.out/InfrastructureStack.template.json"]
           }
         }),
         environment: {
