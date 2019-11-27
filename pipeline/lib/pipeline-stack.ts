@@ -13,6 +13,14 @@ import {
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
+class CloudFormationCreateUpdateStackActionFix extends CloudFormationCreateUpdateStackAction {
+  bound(scope: any, stage: any, options: any): any {
+    const result = super.bound(scope, stage, options);
+    options.bucket.grantRead((this as any)._deploymentRole);
+    return result;
+  }
+}
+
 export interface PipelineStackProps extends StackProps {
   readonly pingLambdaCode: CfnParametersCode;
 }
@@ -78,8 +86,8 @@ export class PipelineStack extends Stack {
           build: { commands: "npm run build --prefix ping" }
         },
         artifacts: {
-          "base-directory": "./ping",
-          files: ["lib/ping.js", "node_modules/**/*"]
+          "base-directory": "./ping/lib",
+          files: ["ping.js"]
         }
       }),
       environment: {
@@ -96,7 +104,7 @@ export class PipelineStack extends Stack {
       outputs: [pingLambdaBuildOutput]
     });
 
-    const deployAction = new CloudFormationCreateUpdateStackAction({
+    const deployAction = new CloudFormationCreateUpdateStackActionFix({
       actionName: "Infrastructure_CFN_Deploy",
       templatePath: infrastructureBuildOutput.atPath(
         "cdk.out/InfrastructureStack.template.json"
