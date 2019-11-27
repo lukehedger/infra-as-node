@@ -1,4 +1,4 @@
-import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
+import { Cors, LambdaRestApi } from "@aws-cdk/aws-apigateway";
 import {
   CfnParametersCode,
   Code,
@@ -22,6 +22,10 @@ export class InfrastructureStack extends Stack {
     });
 
     new LambdaRestApi(this, "PingEndpoint", {
+      defaultCorsPreflightOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS
+      },
       handler: ping
     });
   }
