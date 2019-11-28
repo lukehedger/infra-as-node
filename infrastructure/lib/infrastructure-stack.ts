@@ -21,12 +21,17 @@ export class InfrastructureStack extends Stack {
       runtime: Runtime.NODEJS_10_X
     });
 
-    new LambdaRestApi(this, "PingEndpoint", {
+    const api = new LambdaRestApi(this, "PingEndpoint", {
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS
       },
-      handler: ping
+      handler: ping,
+      proxy: false
     });
+
+    const pingResource = api.root.addResource("ping");
+
+    pingResource.addMethod("GET");
   }
 }
