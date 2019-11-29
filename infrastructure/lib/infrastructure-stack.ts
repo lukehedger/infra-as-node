@@ -1,4 +1,4 @@
-import { Cors, LambdaRestApi } from "@aws-cdk/aws-apigateway";
+import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
 import {
   CfnParametersCode,
   Code,
@@ -22,10 +22,6 @@ export class InfrastructureStack extends Stack {
     });
 
     const api = new LambdaRestApi(this, "PingEndpoint", {
-      defaultCorsPreflightOptions: {
-        allowOrigins: Cors.ALL_ORIGINS,
-        allowMethods: Cors.ALL_METHODS
-      },
       handler: ping,
       proxy: false
     });
@@ -33,5 +29,12 @@ export class InfrastructureStack extends Stack {
     const pingResource = api.root.addResource("ping");
 
     pingResource.addMethod("GET");
+
+    pingResource.addCorsPreflight({
+      allowCredentials: true,
+      allowHeaders: ["*"],
+      allowMethods: ["*"],
+      allowOrigins: ["*"]
+    });
   }
 }
