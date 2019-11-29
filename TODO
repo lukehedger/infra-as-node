@@ -14,4 +14,4 @@ See https://cloudcraft.co/app/blueprint/47bee859-4bee-4e0a-9406-f29288f991e8
 - Add Custom domains
   https://docs.aws.amazon.com/cdk/api/latest/docs/aws-apigateway-readme.html#custom-domains
 
-- Remove permission workaround when 1.19 is released https://github.com/aws/  aws-cdk/pull/5190#issuecomment-558775663
+- Remove permission workaround when 1.19 is released https://github.com/aws/aws-cdk/pull/5190#issuecomment-558775663

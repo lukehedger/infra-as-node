@@ -46,6 +46,45 @@ test("Stack has CodePipeline pipeline resource", () => {
           Actions: [
             {
               ActionTypeId: {
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild",
+                Version: "1"
+              },
+              Configuration: {
+                ProjectName: {
+                  Ref: "WorkspaceBuildF1E1759B"
+                }
+              },
+              InputArtifacts: [
+                {
+                  Name: "Artifact_Source_GitHub_Source"
+                }
+              ],
+              Name: "Workspace_Build",
+              OutputArtifacts: [
+                {
+                  Name: "InfrastructureBuildOutput"
+                },
+                {
+                  Name: "PingLambdaBuildOutput"
+                }
+              ],
+              RoleArn: {
+                "Fn::GetAtt": [
+                  "PipelineBuildWorkspaceBuildCodePipelineActionRole3B2F594C",
+                  "Arn"
+                ]
+              },
+              RunOrder: 1
+            }
+          ],
+          Name: "Build"
+        },
+        {
+          Actions: [
+            {
+              ActionTypeId: {
                 Category: "Test",
                 Owner: "AWS",
                 Provider: "CodeBuild",
@@ -64,76 +103,14 @@ test("Stack has CodePipeline pipeline resource", () => {
               Name: "Workspace_Test",
               RoleArn: {
                 "Fn::GetAtt": [
-                  "PipelineBuildWorkspaceTestCodePipelineActionRole4D5824AC",
-                  "Arn"
-                ]
-              },
-              RunOrder: 1
-            },
-            {
-              ActionTypeId: {
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild",
-                Version: "1"
-              },
-              Configuration: {
-                ProjectName: {
-                  Ref: "PingLambdaBuild6E058FF7"
-                }
-              },
-              InputArtifacts: [
-                {
-                  Name: "Artifact_Source_GitHub_Source"
-                }
-              ],
-              Name: "Ping_Lambda_Build",
-              OutputArtifacts: [
-                {
-                  Name: "PingLambdaBuildOutput"
-                }
-              ],
-              RoleArn: {
-                "Fn::GetAtt": [
-                  "PipelineBuildPingLambdaBuildCodePipelineActionRole4FA0DB91",
-                  "Arn"
-                ]
-              },
-              RunOrder: 1
-            },
-            {
-              ActionTypeId: {
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild",
-                Version: "1"
-              },
-              Configuration: {
-                ProjectName: {
-                  Ref: "InfrastructureBuildE80150C6"
-                }
-              },
-              InputArtifacts: [
-                {
-                  Name: "Artifact_Source_GitHub_Source"
-                }
-              ],
-              Name: "Infrastructure_Build",
-              OutputArtifacts: [
-                {
-                  Name: "InfrastructureBuildOutput"
-                }
-              ],
-              RoleArn: {
-                "Fn::GetAtt": [
-                  "PipelineBuildInfrastructureBuildCodePipelineActionRole2A7FDF4E",
+                  "PipelineTestWorkspaceTestCodePipelineActionRole2A51DFFC",
                   "Arn"
                 ]
               },
               RunOrder: 1
             }
           ],
-          Name: "Build"
+          Name: "Test"
         },
         {
           Actions: [
