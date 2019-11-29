@@ -43,11 +43,11 @@ test("Stack has Braintree GraphQL Ping API Gateway OPTIONS method", () => {
         IntegrationResponses: [
           {
             ResponseParameters: {
-              "method.response.header.Access-Control-Allow-Headers":
-                "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+              "method.response.header.Access-Control-Allow-Headers": "'*'",
               "method.response.header.Access-Control-Allow-Origin": "'*'",
-              "method.response.header.Access-Control-Allow-Methods":
-                "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+              "method.response.header.Access-Control-Allow-Methods": "'*'",
+              "method.response.header.Access-Control-Allow-Credentials":
+                "'true'"
             },
             StatusCode: "204"
           }
