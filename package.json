@@ -6,6 +6,7 @@
   "author": "lukehedger <lh4@pm.me>",
   "license": "MIT",
   "scripts": {
+    "build-infra": "yarn --cwd infrastructure build && yarn --cwd infrastructure synth && yarn --cwd ping build",
     "deploy-pipeline": "yarn --cwd pipeline build && yarn --cwd pipeline deploy",
     "test": "yarn workspaces run test"
   },

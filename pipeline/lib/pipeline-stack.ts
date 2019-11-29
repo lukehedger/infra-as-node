@@ -44,6 +44,42 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK
     });
 
+    const workspaceBuild = new PipelineProject(this, "WorkspaceBuild", {
+      buildSpec: BuildSpec.fromObject({
+        version: "0.2",
+        artifacts: {
+          "secondary-artifacts": {
+            InfrastructureBuildOutput: {
+              "base-directory": "./infrastructure",
+              files: ["cdk.out/InfrastructureStack.template.json"]
+            },
+            PingLambdaBuildOutput: {
+              "base-directory": "./ping/lib",
+              files: ["ping.js"]
+            }
+          }
+        },
+        phases: {
+          install: { commands: ["npm install --global yarn", "yarn install"] },
+          build: { commands: "yarn build-infra" }
+        }
+      }),
+      environment: {
+        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
+      }
+    });
+
+    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
+
+    const pingLambdaBuildOutput = new Artifact("PingLambdaBuildOutput");
+
+    const buildAction = new CodeBuildAction({
+      actionName: "Workspace_Build",
+      input: sourceOutput,
+      outputs: [infrastructureBuildOutput, pingLambdaBuildOutput],
+      project: workspaceBuild
+    });
+
     const workspaceTest = new PipelineProject(this, "WorkspaceTest", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
@@ -57,72 +93,11 @@ export class PipelineStack extends Stack {
       }
     });
 
-    const workspaceTestAction = new CodeBuildAction({
+    const testAction = new CodeBuildAction({
       actionName: "Workspace_Test",
       project: workspaceTest,
       input: sourceOutput,
       type: CodeBuildActionType.TEST
-    });
-
-    const infrastructureBuild = new PipelineProject(
-      this,
-      "InfrastructureBuild",
-      {
-        buildSpec: BuildSpec.fromObject({
-          version: "0.2",
-          phases: {
-            install: { commands: "npm --prefix infrastructure install" },
-            build: {
-              commands: [
-                "npm --prefix infrastructure build",
-                "npm --prefix infrastructure synth"
-              ]
-            }
-          },
-          artifacts: {
-            "base-directory": "./infrastructure",
-            files: ["cdk.out/InfrastructureStack.template.json"]
-          }
-        }),
-        environment: {
-          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
-        }
-      }
-    );
-
-    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
-
-    const infrastructureBuildAction = new CodeBuildAction({
-      actionName: "Infrastructure_Build",
-      project: infrastructureBuild,
-      input: sourceOutput,
-      outputs: [infrastructureBuildOutput]
-    });
-
-    const pingLambdaBuild = new PipelineProject(this, "PingLambdaBuild", {
-      buildSpec: BuildSpec.fromObject({
-        version: "0.2",
-        phases: {
-          install: { commands: "npm --prefix ping install" },
-          build: { commands: "npm --prefix ping build" }
-        },
-        artifacts: {
-          "base-directory": "./ping/lib",
-          files: ["ping.js"]
-        }
-      }),
-      environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
-      }
-    });
-
-    const pingLambdaBuildOutput = new Artifact("PingLambdaBuildOutput");
-
-    const pingLambdaBuildAction = new CodeBuildAction({
-      actionName: "Ping_Lambda_Build",
-      project: pingLambdaBuild,
-      input: sourceOutput,
-      outputs: [pingLambdaBuildOutput]
     });
 
     const deployAction = new CloudFormationCreateUpdateStackActionFix({
@@ -146,11 +121,11 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Build",
-          actions: [
-            workspaceTestAction,
-            pingLambdaBuildAction,
-            infrastructureBuildAction
-          ]
+          actions: [buildAction]
+        },
+        {
+          stageName: "Test",
+          actions: [testAction]
         },
         {
           stageName: "Deploy",
