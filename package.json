@@ -5,6 +5,10 @@
   "repository": "https://github.com/lukehedger/infra-as-node.git",
   "author": "lukehedger <lh4@pm.me>",
   "license": "MIT",
+  "scripts": {
+    "deploy-pipeline": "yarn --cwd pipeline build && yarn --cwd pipeline deploy",
+    "test": "yarn workspaces run test"
+  },
   "workspaces": [
     "infrastructure",
     "ping",

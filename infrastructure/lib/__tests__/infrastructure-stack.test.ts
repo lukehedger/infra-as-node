@@ -19,10 +19,52 @@ test("Stack has Braintree GraphQL Ping Lambda resource", () => {
   );
 });
 
-test("Stack has Braintree GraphQL Ping API Gateway endpoint resource", () => {
+test("Stack has Braintree GraphQL Ping API Gateway REST API resource", () => {
   expectCDK(stack).to(
     haveResource("AWS::ApiGateway::RestApi", {
       Name: "PingEndpoint"
+    })
+  );
+});
+
+test("Stack has Braintree GraphQL Ping API Gateway /ping endpoint resource", () => {
+  expectCDK(stack).to(
+    haveResource("AWS::ApiGateway::Resource", {
+      PathPart: "ping"
+    })
+  );
+});
+
+test("Stack has Braintree GraphQL Ping API Gateway OPTIONS method", () => {
+  expectCDK(stack).to(
+    haveResource("AWS::ApiGateway::Method", {
+      HttpMethod: "OPTIONS",
+      Integration: {
+        IntegrationResponses: [
+          {
+            ResponseParameters: {
+              "method.response.header.Access-Control-Allow-Headers":
+                "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+              "method.response.header.Access-Control-Allow-Origin": "'*'",
+              "method.response.header.Access-Control-Allow-Methods":
+                "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+            },
+            StatusCode: "204"
+          }
+        ],
+        RequestTemplates: {
+          "application/json": "{ statusCode: 200 }"
+        },
+        Type: "MOCK"
+      }
+    })
+  );
+});
+
+test("Stack has Braintree GraphQL Ping API Gateway GET method", () => {
+  expectCDK(stack).to(
+    haveResource("AWS::ApiGateway::Method", {
+      HttpMethod: "GET"
     })
   );
 });

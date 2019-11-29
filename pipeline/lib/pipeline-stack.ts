@@ -7,6 +7,7 @@ import { Artifact, Pipeline } from "@aws-cdk/aws-codepipeline";
 import {
   CloudFormationCreateUpdateStackAction,
   CodeBuildAction,
+  CodeBuildActionType,
   GitHubSourceAction,
   GitHubTrigger
 } from "@aws-cdk/aws-codepipeline-actions";
@@ -43,11 +44,12 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK
     });
 
-    const workspaceBuild = new PipelineProject(this, "WorkspaceBuild", {
+    const workspaceTest = new PipelineProject(this, "WorkspaceTest", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
-          install: { commands: ["npm install --global yarn", "yarn install"] }
+          install: { commands: ["npm install --global yarn", "yarn install"] },
+          build: { commands: "yarn test" }
         }
       }),
       environment: {
@@ -55,10 +57,11 @@ export class PipelineStack extends Stack {
       }
     });
 
-    const workspaceBuildAction = new CodeBuildAction({
-      actionName: "Workspace_Build",
-      project: workspaceBuild,
-      input: sourceOutput
+    const workspaceTestAction = new CodeBuildAction({
+      actionName: "Workspace_Test",
+      project: workspaceTest,
+      input: sourceOutput,
+      type: CodeBuildActionType.TEST
     });
 
     const infrastructureBuild = new PipelineProject(
@@ -68,10 +71,11 @@ export class PipelineStack extends Stack {
         buildSpec: BuildSpec.fromObject({
           version: "0.2",
           phases: {
+            install: { commands: "npm --prefix infrastructure install" },
             build: {
               commands: [
-                "yarn --cwd infrastructure build",
-                "yarn --cwd infrastructure synth"
+                "npm --prefix infrastructure build",
+                "npm --prefix infrastructure synth"
               ]
             }
           },
@@ -86,7 +90,7 @@ export class PipelineStack extends Stack {
       }
     );
 
-    const infrastructureBuildOutput = new Artifact("infrastructureBuildOutput");
+    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
     const infrastructureBuildAction = new CodeBuildAction({
       actionName: "Infrastructure_Build",
@@ -99,7 +103,8 @@ export class PipelineStack extends Stack {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
-          build: { commands: "yarn --cwd ping build" }
+          install: { commands: "npm --prefix ping install" },
+          build: { commands: "npm --prefix ping build" }
         },
         artifacts: {
           "base-directory": "./ping/lib",
@@ -142,7 +147,7 @@ export class PipelineStack extends Stack {
         {
           stageName: "Build",
           actions: [
-            workspaceBuildAction,
+            workspaceTestAction,
             pingLambdaBuildAction,
             infrastructureBuildAction
           ]
