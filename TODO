@@ -1,4 +1,3 @@
-- Use Yarn workspace
 - Add some tests, add step to pipeline
 - Add SAM local env - this will need a "local" stack (how to structure?)
 

@@ -1,0 +1,13 @@
+{
+  "name": "infra-as-node",
+  "private": true,
+  "version": "0.0.0",
+  "repository": "https://github.com/lukehedger/infra-as-node.git",
+  "author": "lukehedger <lh4@pm.me>",
+  "license": "MIT",
+  "workspaces": [
+    "infrastructure",
+    "ping",
+    "pipeline"
+  ]
+}

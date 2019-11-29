@@ -43,6 +43,24 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK
     });
 
+    const workspaceBuild = new PipelineProject(this, "WorkspaceBuild", {
+      buildSpec: BuildSpec.fromObject({
+        version: "0.2",
+        phases: {
+          install: { commands: ["npm install --global yarn", "yarn install"] }
+        }
+      }),
+      environment: {
+        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
+      }
+    });
+
+    const workspaceBuildAction = new CodeBuildAction({
+      actionName: "Workspace_Build",
+      project: workspaceBuild,
+      input: sourceOutput
+    });
+
     const infrastructureBuild = new PipelineProject(
       this,
       "InfrastructureBuild",
@@ -50,11 +68,10 @@ export class PipelineStack extends Stack {
         buildSpec: BuildSpec.fromObject({
           version: "0.2",
           phases: {
-            install: { commands: "npm install --prefix infrastructure" },
             build: {
               commands: [
-                "npm run build --prefix infrastructure",
-                "npm run synth --prefix infrastructure"
+                "yarn --cwd infrastructure build",
+                "yarn --cwd infrastructure synth"
               ]
             }
           },
@@ -82,8 +99,7 @@ export class PipelineStack extends Stack {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         phases: {
-          install: { commands: "npm install --prefix ping" },
-          build: { commands: "npm run build --prefix ping" }
+          build: { commands: "yarn --cwd ping build" }
         },
         artifacts: {
           "base-directory": "./ping/lib",
@@ -125,7 +141,11 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Build",
-          actions: [pingLambdaBuildAction, infrastructureBuildAction]
+          actions: [
+            workspaceBuildAction,
+            pingLambdaBuildAction,
+            infrastructureBuildAction
+          ]
         },
         {
           stageName: "Deploy",
