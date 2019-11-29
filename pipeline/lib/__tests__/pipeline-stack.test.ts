@@ -126,7 +126,7 @@ test("Stack has CodePipeline pipeline resource", () => {
                 Capabilities: "CAPABILITY_NAMED_IAM",
                 RoleArn: {
                   "Fn::GetAtt": [
-                    "PipelineDeployInfrastructureCFNDeployRoleAC34BA2B",
+                    "PipelineDeployInfrastructureDeployRole7CD91CDA",
                     "Arn"
                   ]
                 },
@@ -143,10 +143,10 @@ test("Stack has CodePipeline pipeline resource", () => {
                   Name: "InfrastructureBuildOutput"
                 }
               ],
-              Name: "Infrastructure_CFN_Deploy",
+              Name: "Infrastructure_Deploy",
               RoleArn: {
                 "Fn::GetAtt": [
-                  "PipelineDeployInfrastructureCFNDeployCodePipelineActionRoleCF9820AE",
+                  "PipelineDeployInfrastructureDeployCodePipelineActionRoleE6380BCC",
                   "Arn"
                 ]
               },

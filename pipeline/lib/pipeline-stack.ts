@@ -101,7 +101,7 @@ export class PipelineStack extends Stack {
     });
 
     const deployAction = new CloudFormationCreateUpdateStackActionFix({
-      actionName: "Infrastructure_CFN_Deploy",
+      actionName: "Infrastructure_Deploy",
       templatePath: infrastructureBuildOutput.atPath(
         "cdk.out/InfrastructureStack.template.json"
       ),
