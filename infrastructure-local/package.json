@@ -1,0 +1,23 @@
+{
+  "name": "infrastructure-local",
+  "private": true,
+  "version": "0.0.0",
+  "bin": {
+    "aws": "bin/infrastructure.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "sam local start-api --template cdk.out/InfrastructureStack.template.json",
+    "synth": "cdk synth",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "aws-cdk": "1.18.0",
+    "typescript": "3.7.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigateway": "1.18.0",
+    "@aws-cdk/aws-lambda": "1.18.0",
+    "@aws-cdk/core": "^1.18.0"
+  }
+}

@@ -30,13 +30,21 @@ export const handler: Handler = async (): Promise<APIGatewayProxyResult> => {
 
     return {
       body: JSON.stringify(json),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Content-Type": "application/json"
+      },
       statusCode: 200
     };
   } catch (error) {
     return {
       body: JSON.stringify(error),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Content-Type": "application/json"
+      },
       statusCode: 500
     };
   }

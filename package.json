@@ -12,6 +12,7 @@
   },
   "workspaces": [
     "infrastructure",
+    "infrastructure-local",
     "ping",
     "pipeline"
   ]

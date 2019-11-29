@@ -17,7 +17,7 @@ test("Should send ping query to Braintree GraphQL API", async () => {
   const context: Context = {} as Context;
   const event: APIGatewayProxyEvent = {} as APIGatewayProxyEvent;
 
-  expect.assertions(5);
+  expect.assertions(7);
 
   const res = await handler(event, context, callback);
 
@@ -28,6 +28,10 @@ test("Should send ping query to Braintree GraphQL API", async () => {
   expect(body.data).toBeTruthy();
 
   expect(body.data.ping).toEqual("pong");
+
+  expect(res.headers["Access-Control-Allow-Origin"]).toEqual("*");
+
+  expect(res.headers["Access-Control-Allow-Methods"]).toEqual("POST");
 
   expect(res.headers["Content-Type"]).toEqual("application/json");
 

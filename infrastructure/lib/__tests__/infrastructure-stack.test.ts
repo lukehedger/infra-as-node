@@ -35,36 +35,10 @@ test("Stack has Braintree GraphQL Ping API Gateway /ping endpoint resource", () 
   );
 });
 
-test("Stack has Braintree GraphQL Ping API Gateway OPTIONS method", () => {
-  expectCDK(stack).to(
-    haveResource("AWS::ApiGateway::Method", {
-      HttpMethod: "OPTIONS",
-      Integration: {
-        IntegrationResponses: [
-          {
-            ResponseParameters: {
-              "method.response.header.Access-Control-Allow-Headers": "'*'",
-              "method.response.header.Access-Control-Allow-Origin": "'*'",
-              "method.response.header.Access-Control-Allow-Methods": "'*'",
-              "method.response.header.Access-Control-Allow-Credentials":
-                "'true'"
-            },
-            StatusCode: "204"
-          }
-        ],
-        RequestTemplates: {
-          "application/json": "{ statusCode: 200 }"
-        },
-        Type: "MOCK"
-      }
-    })
-  );
-});
-
 test("Stack has Braintree GraphQL Ping API Gateway GET method", () => {
   expectCDK(stack).to(
     haveResource("AWS::ApiGateway::Method", {
-      HttpMethod: "GET"
+      HttpMethod: "POST"
     })
   );
 });
