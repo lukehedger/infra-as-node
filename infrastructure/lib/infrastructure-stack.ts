@@ -3,7 +3,8 @@ import {
   CfnParametersCode,
   Code,
   Function,
-  Runtime
+  Runtime,
+  Tracing
 } from "@aws-cdk/aws-lambda";
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
@@ -18,7 +19,8 @@ export class InfrastructureStack extends Stack {
     const ping = new Function(this, "PingHandler", {
       code: this.pingLambdaCode,
       handler: "ping.handler",
-      runtime: Runtime.NODEJS_10_X
+      runtime: Runtime.NODEJS_10_X,
+      tracing: Tracing.ACTIVE
     });
 
     const api = new LambdaRestApi(this, "PingEndpoint", {
