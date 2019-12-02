@@ -9,6 +9,7 @@
     "build": "tsc",
     "dev": "sam local start-api --template cdk.out/InfrastructureStack.template.json",
     "synth": "cdk synth",
+    "test": "exit 0",
     "watch": "tsc -w"
   },
   "devDependencies": {
