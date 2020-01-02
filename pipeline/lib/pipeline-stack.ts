@@ -82,7 +82,7 @@ export class PipelineStack extends Stack {
     const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
     const dlqConsumerLambdaBuildOutput = new Artifact(
-      "DLQConsumberLambdaBuildOutput"
+      "DLQConsumerLambdaBuildOutput"
     );
 
     const kinesisConsumerLambdaBuildOutput = new Artifact(
