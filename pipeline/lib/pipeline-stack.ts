@@ -23,7 +23,9 @@ class CloudFormationCreateUpdateStackActionFix extends CloudFormationCreateUpdat
 }
 
 export interface PipelineStackProps extends StackProps {
-  readonly pingLambdaCode: CfnParametersCode;
+  readonly dlqConsumerLambdaCode: CfnParametersCode;
+  readonly kinesisConsumerLambdaCode: CfnParametersCode;
+  readonly kinesisProducerLambdaCode: CfnParametersCode;
 }
 
 export class PipelineStack extends Stack {
@@ -53,9 +55,17 @@ export class PipelineStack extends Stack {
               "base-directory": "./infrastructure",
               files: ["cdk.out/InfrastructureStack.template.json"]
             },
-            PingLambdaBuildOutput: {
-              "base-directory": "./ping/lib",
-              files: ["ping.js"]
+            DLQConsumerLambdaBuildOutput: {
+              "base-directory": "./dlq-consumer/lib",
+              files: ["consumer.js"]
+            },
+            KinesisConsumerLambdaBuildOutput: {
+              "base-directory": "./kinesis-consumer/lib",
+              files: ["consumer.js"]
+            },
+            KinesisProducerLambdaBuildOutput: {
+              "base-directory": "./kinesis-producer/lib",
+              files: ["producer.js"]
             }
           }
         },
@@ -71,12 +81,27 @@ export class PipelineStack extends Stack {
 
     const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
-    const pingLambdaBuildOutput = new Artifact("PingLambdaBuildOutput");
+    const dlqConsumerLambdaBuildOutput = new Artifact(
+      "DLQConsumberLambdaBuildOutput"
+    );
+
+    const kinesisConsumerLambdaBuildOutput = new Artifact(
+      "KinesisConsumerLambdaBuildOutput"
+    );
+
+    const kinesisProducerLambdaBuildOutput = new Artifact(
+      "KinesisProducerLambdaBuildOutput"
+    );
 
     const buildAction = new CodeBuildAction({
       actionName: "Workspace_Build",
       input: sourceOutput,
-      outputs: [infrastructureBuildOutput, pingLambdaBuildOutput],
+      outputs: [
+        infrastructureBuildOutput,
+        dlqConsumerLambdaBuildOutput,
+        kinesisConsumerLambdaBuildOutput,
+        kinesisProducerLambdaBuildOutput
+      ],
       project: workspaceBuild
     });
 
@@ -108,9 +133,21 @@ export class PipelineStack extends Stack {
       stackName: "InfrastructureStack",
       adminPermissions: true,
       parameterOverrides: {
-        ...props?.pingLambdaCode.assign(pingLambdaBuildOutput.s3Location)
+        ...props?.dlqConsumerLambdaCode.assign(
+          dlqConsumerLambdaBuildOutput.s3Location
+        ),
+        ...props?.kinesisConsumerLambdaCode.assign(
+          kinesisConsumerLambdaBuildOutput.s3Location
+        ),
+        ...props?.kinesisProducerLambdaCode.assign(
+          kinesisProducerLambdaBuildOutput.s3Location
+        )
       },
-      extraInputs: [pingLambdaBuildOutput]
+      extraInputs: [
+        dlqConsumerLambdaBuildOutput,
+        kinesisConsumerLambdaBuildOutput,
+        kinesisProducerLambdaBuildOutput
+      ]
     });
 
     new Pipeline(this, "Pipeline", {

@@ -1,0 +1,24 @@
+{
+  "name": "kinesis-consumer",
+  "private": true,
+  "version": "0.0.0",
+  "main": "lib/consumer.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "rollup --config",
+    "test": "exit 0",
+    "watch": "rollup --config --watch"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "8.10.34",
+    "rollup": "1.26.2",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup-plugin-terser": "5.1.2",
+    "rollup-plugin-typescript": "1.0.1",
+    "tslib": "1.10.0",
+    "typescript": "3.7.2"
+  },
+  "dependencies": {}
+}

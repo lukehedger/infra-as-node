@@ -1,15 +1,5 @@
-APIGateway -> SourceLambda -> Kinesis Data Stream -> TriggerLambda -> Aurora
-                                                  -> Kinesis Firehose -> S3
-See https://cloudcraft.co/app/blueprint/47bee859-4bee-4e0a-9406-f29288f991e8
+- Remove permission workaround https://github.com/aws/aws-cdk/pull/5190#issuecomment-558775663
 
-- Add Kinesis, Firehose and S3
-  https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis-example.html
-  https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecord-property
-- Add DynamoDB or Aurora (Serverless Postgres)
-- Add Lambda that subscribes to Kinesis and writes to database
+- Can infra be run locally?!
 
-- Add Amplify + CloudFront/S3 (?)
-- Add Custom domains
-  https://docs.aws.amazon.com/cdk/api/latest/docs/aws-apigateway-readme.html#custom-domains
-
-- Remove permission workaround when 1.19 is released https://github.com/aws/aws-cdk/pull/5190#issuecomment-558775663
+- Add Firehose and S3

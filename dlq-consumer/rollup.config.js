@@ -3,11 +3,10 @@ import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript";
 
 export default {
-  external: ["http", "https", "stream", "url", "zlib"],
-  input: "lib/ping.ts",
+  input: "lib/consumer.ts",
   output: [
     {
-      file: "lib/ping.js",
+      file: "lib/consumer.js",
       format: "cjs"
     }
   ],

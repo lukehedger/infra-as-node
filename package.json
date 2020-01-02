@@ -6,14 +6,18 @@
   "author": "lukehedger <lh4@pm.me>",
   "license": "MIT",
   "scripts": {
-    "build-infra": "yarn --cwd infrastructure build && yarn --cwd infrastructure synth && yarn --cwd ping build",
+    "build": "yarn workspaces run build",
+    "build-infra": "yarn build && yarn --cwd infrastructure synth",
     "deploy-pipeline": "yarn --cwd pipeline build && yarn --cwd pipeline deploy",
+    "dev": "build-infra && sam local start-api --template infrastructure-local/cdk.out/InfrastructureStack.template.json",
     "test": "yarn workspaces run test"
   },
   "workspaces": [
+    "dlq-consumer",
     "infrastructure",
     "infrastructure-local",
-    "ping",
+    "kinesis-consumer",
+    "kinesis-producer",
     "pipeline"
   ]
 }

@@ -8,5 +8,7 @@ const app = new App();
 const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
 
 new PipelineStack(app, "PipelineStack", {
-  pingLambdaCode: infrastructureStack.pingLambdaCode
+  dlqConsumerLambdaCode: infrastructureStack.dlqConsumerLambdaCode,
+  kinesisConsumerLambdaCode: infrastructureStack.kinesisConsumerLambdaCode,
+  kinesisProducerLambdaCode: infrastructureStack.kinesisProducerLambdaCode
 });
