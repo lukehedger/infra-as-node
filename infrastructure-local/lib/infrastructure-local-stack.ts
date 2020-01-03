@@ -18,9 +18,7 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const kinesisStreamName = "KinesisStream";
-
-    const kinesisStream = new Stream(this, kinesisStreamName, {
+    const kinesisStream = new Stream(this, "KinesisStream", {
       encryption: StreamEncryption.KMS
     });
 
@@ -61,12 +59,14 @@ export class InfrastructureStack extends Stack {
     const kinesisProducerLambda = new Function(this, "KinesisProducerHandler", {
       code: Code.fromAsset("../kinesis-producer/lib"),
       environment: {
-        KINESIS_STREAM_NAME: kinesisStreamName
+        KINESIS_STREAM_NAME: kinesisStream.streamName
       },
       handler: "producer.handler",
       runtime: Runtime.NODEJS_10_X,
       tracing: Tracing.ACTIVE
     });
+
+    kinesisStream.grantWrite(kinesisProducerLambda);
 
     const api = new LambdaRestApi(this, "KinesisProducerEndpoint", {
       handler: kinesisProducerLambda,
