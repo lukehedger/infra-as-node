@@ -27,9 +27,7 @@ export class InfrastructureStack extends Stack {
     this.kinesisConsumerLambdaCode = Code.cfnParameters();
     this.kinesisProducerLambdaCode = Code.cfnParameters();
 
-    const kinesisStreamName = "KinesisStream";
-
-    const kinesisStream = new Stream(this, kinesisStreamName, {
+    const kinesisStream = new Stream(this, "KinesisStream", {
       encryption: StreamEncryption.KMS
     });
 
@@ -70,12 +68,14 @@ export class InfrastructureStack extends Stack {
     const kinesisProducerLambda = new Function(this, "KinesisProducerHandler", {
       code: this.kinesisProducerLambdaCode,
       environment: {
-        KINESIS_STREAM_NAME: kinesisStreamName
+        KINESIS_STREAM_NAME: kinesisStream.streamName
       },
       handler: "producer.handler",
       runtime: Runtime.NODEJS_10_X,
       tracing: Tracing.ACTIVE
     });
+
+    kinesisStream.grantWrite(kinesisProducerLambda);
 
     const api = new LambdaRestApi(this, "KinesisProducerEndpoint", {
       handler: kinesisProducerLambda,
