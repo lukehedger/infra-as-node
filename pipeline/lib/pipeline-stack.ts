@@ -14,14 +14,6 @@ import {
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
-class CloudFormationCreateUpdateStackActionFix extends CloudFormationCreateUpdateStackAction {
-  bound(scope: any, stage: any, options: any): any {
-    const result = super.bound(scope, stage, options);
-    options.bucket.grantRead((this as any)._deploymentRole);
-    return result;
-  }
-}
-
 export interface PipelineStackProps extends StackProps {
   readonly dlqConsumerLambdaCode: CfnParametersCode;
   readonly kinesisConsumerLambdaCode: CfnParametersCode;
@@ -125,7 +117,7 @@ export class PipelineStack extends Stack {
       type: CodeBuildActionType.TEST
     });
 
-    const deployAction = new CloudFormationCreateUpdateStackActionFix({
+    const deployAction = new CloudFormationCreateUpdateStackAction({
       actionName: "Infrastructure_Deploy",
       templatePath: infrastructureBuildOutput.atPath(
         "cdk.out/InfrastructureStack.template.json"
