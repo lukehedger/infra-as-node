@@ -21,7 +21,7 @@ export const handler: Handler = async (
       }
 
       const putRecordCommand = new PutRecordCommand({
-        Data: event.body,
+        Data: JSON.stringify(event.body),
         PartitionKey: "1",
         StreamName: KINESIS_STREAM_NAME
       });
