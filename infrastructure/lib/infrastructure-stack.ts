@@ -42,7 +42,8 @@ export class InfrastructureStack extends Stack {
     const dlqConsumerLambda = new Function(this, "DLQConsumerHandler", {
       code: this.dlqConsumerLambdaCode,
       handler: "consumer.handler",
-      runtime: Runtime.NODEJS_10_X
+      runtime: Runtime.NODEJS_10_X,
+      tracing: Tracing.ACTIVE
     });
 
     dlqConsumerLambda.addEventSource(
@@ -55,7 +56,8 @@ export class InfrastructureStack extends Stack {
       code: this.kinesisConsumerLambdaCode,
       deadLetterQueue: kinesisConsumerDLQ,
       handler: "consumer.handler",
-      runtime: Runtime.NODEJS_10_X
+      runtime: Runtime.NODEJS_10_X,
+      tracing: Tracing.ACTIVE
     });
 
     kinesisConsumerLambda.addEventSource(

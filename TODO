@@ -1,5 +1,0 @@
-- Remove permission workaround https://github.com/aws/aws-cdk/pull/5190#issuecomment-558775663
-
-- Can infra be run locally?!
-
-- Add Firehose and S3
