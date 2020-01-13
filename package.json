@@ -13,10 +13,11 @@
     "test": "yarn workspaces run test"
   },
   "workspaces": [
-    "dlq-consumer",
     "infrastructure",
     "infrastructure-local",
     "kinesis-consumer",
+    "kinesis-consumer-failure",
+    "kinesis-consumer-success",
     "kinesis-producer",
     "pipeline"
   ]
