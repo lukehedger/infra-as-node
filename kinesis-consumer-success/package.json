@@ -1,8 +1,8 @@
 {
-  "name": "dlq-consumer",
+  "name": "kinesis-consumer-success",
   "private": true,
   "version": "0.0.0",
-  "main": "lib/consumer.js",
+  "main": "lib/success.js",
   "directories": {
     "lib": "lib"
   },

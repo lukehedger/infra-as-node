@@ -8,7 +8,10 @@ const app = new App();
 const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
 
 new PipelineStack(app, "PipelineStack", {
-  dlqConsumerLambdaCode: infrastructureStack.dlqConsumerLambdaCode,
   kinesisConsumerLambdaCode: infrastructureStack.kinesisConsumerLambdaCode,
+  kinesisConsumerFailureLambdaCode:
+    infrastructureStack.kinesisConsumerFailureLambdaCode,
+  kinesisConsumerSuccessLambdaCode:
+    infrastructureStack.kinesisConsumerSuccessLambdaCode,
   kinesisProducerLambdaCode: infrastructureStack.kinesisProducerLambdaCode
 });

@@ -3,10 +3,10 @@ import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript";
 
 export default {
-  input: "lib/consumer.ts",
+  input: "lib/success.ts",
   output: [
     {
-      file: "lib/consumer.js",
+      file: "lib/success.js",
       format: "cjs"
     }
   ],

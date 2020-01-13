@@ -15,8 +15,9 @@ import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
-  readonly dlqConsumerLambdaCode: CfnParametersCode;
   readonly kinesisConsumerLambdaCode: CfnParametersCode;
+  readonly kinesisConsumerFailureLambdaCode: CfnParametersCode;
+  readonly kinesisConsumerSuccessLambdaCode: CfnParametersCode;
   readonly kinesisProducerLambdaCode: CfnParametersCode;
 }
 
@@ -47,13 +48,17 @@ export class PipelineStack extends Stack {
               "base-directory": "./infrastructure",
               files: ["cdk.out/InfrastructureStack.template.json"]
             },
-            DLQConsumerLambdaBuildOutput: {
-              "base-directory": "./dlq-consumer/lib",
-              files: ["consumer.js"]
-            },
             KinesisConsumerLambdaBuildOutput: {
               "base-directory": "./kinesis-consumer/lib",
               files: ["consumer.js"]
+            },
+            KinesisConsumerFailureLambdaBuildOutput: {
+              "base-directory": "./kinesis-consumer-failure/lib",
+              files: ["failure.js"]
+            },
+            KinesisConsumerSuccessLambdaBuildOutput: {
+              "base-directory": "./kinesis-consumer-success/lib",
+              files: ["success.js"]
             },
             KinesisProducerLambdaBuildOutput: {
               "base-directory": "./kinesis-producer/lib",
@@ -73,25 +78,22 @@ export class PipelineStack extends Stack {
 
     const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
-    const dlqConsumerLambdaBuildOutput = new Artifact(
-      "DLQConsumerLambdaBuildOutput"
-    );
+    const kinesisConsumerLambdaBuildOutput = new Artifact("KCLBO");
 
-    const kinesisConsumerLambdaBuildOutput = new Artifact(
-      "KinesisConsumerLambdaBuildOutput"
-    );
+    const kinesisConsumerFailureLambdaBuildOutput = new Artifact("KCFLBO");
 
-    const kinesisProducerLambdaBuildOutput = new Artifact(
-      "KinesisProducerLambdaBuildOutput"
-    );
+    const kinesisConsumerSuccessLambdaBuildOutput = new Artifact("KCSLBO");
+
+    const kinesisProducerLambdaBuildOutput = new Artifact("KPLBO");
 
     const buildAction = new CodeBuildAction({
       actionName: "Workspace_Build",
       input: sourceOutput,
       outputs: [
         infrastructureBuildOutput,
-        dlqConsumerLambdaBuildOutput,
         kinesisConsumerLambdaBuildOutput,
+        kinesisConsumerFailureLambdaBuildOutput,
+        kinesisConsumerSuccessLambdaBuildOutput,
         kinesisProducerLambdaBuildOutput
       ],
       project: workspaceBuild
@@ -125,19 +127,23 @@ export class PipelineStack extends Stack {
       stackName: "InfrastructureStack",
       adminPermissions: true,
       parameterOverrides: {
-        ...props?.dlqConsumerLambdaCode.assign(
-          dlqConsumerLambdaBuildOutput.s3Location
-        ),
         ...props?.kinesisConsumerLambdaCode.assign(
           kinesisConsumerLambdaBuildOutput.s3Location
+        ),
+        ...props?.kinesisConsumerFailureLambdaCode.assign(
+          kinesisConsumerFailureLambdaBuildOutput.s3Location
+        ),
+        ...props?.kinesisConsumerSuccessLambdaCode.assign(
+          kinesisConsumerSuccessLambdaBuildOutput.s3Location
         ),
         ...props?.kinesisProducerLambdaCode.assign(
           kinesisProducerLambdaBuildOutput.s3Location
         )
       },
       extraInputs: [
-        dlqConsumerLambdaBuildOutput,
         kinesisConsumerLambdaBuildOutput,
+        kinesisConsumerFailureLambdaBuildOutput,
+        kinesisConsumerSuccessLambdaBuildOutput,
         kinesisProducerLambdaBuildOutput
       ]
     });

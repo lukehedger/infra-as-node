@@ -1,23 +1,13 @@
-import {
-  APIGatewayProxyResult,
-  Handler,
-  SQSEvent,
-  SQSRecord
-} from "aws-lambda";
+import { APIGatewayProxyResult, Handler } from "aws-lambda";
 
 export const handler: Handler = async (
-  event: SQSEvent
+  event
 ): Promise<APIGatewayProxyResult> => {
   try {
-    event.Records.map((record: SQSRecord) => {
-      const payload = JSON.parse(record.body);
-
-      // TODO: Send this somewhere
-      console.log(payload);
-    });
+    console.log(event);
 
     return {
-      body: JSON.stringify({ recordsProcessed: event.Records.length }),
+      body: JSON.stringify({ event: event }),
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
