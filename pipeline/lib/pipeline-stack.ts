@@ -48,19 +48,19 @@ export class PipelineStack extends Stack {
               "base-directory": "./infrastructure",
               files: ["cdk.out/InfrastructureStack.template.json"]
             },
-            KinesisConsumerLambdaBuildOutput: {
+            KCLBO: {
               "base-directory": "./kinesis-consumer/lib",
               files: ["consumer.js"]
             },
-            KinesisConsumerFailureLambdaBuildOutput: {
+            KCFLBO: {
               "base-directory": "./kinesis-consumer-failure/lib",
               files: ["failure.js"]
             },
-            KinesisConsumerSuccessLambdaBuildOutput: {
+            KCSLBO: {
               "base-directory": "./kinesis-consumer-success/lib",
               files: ["success.js"]
             },
-            KinesisProducerLambdaBuildOutput: {
+            KPLBO: {
               "base-directory": "./kinesis-producer/lib",
               files: ["producer.js"]
             }
