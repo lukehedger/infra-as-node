@@ -1,18 +1,9 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
 import { Stream, StreamEncryption } from "@aws-cdk/aws-kinesis";
-import {
-  Code,
-  Function,
-  Runtime,
-  StartingPosition,
-  Tracing
-} from "@aws-cdk/aws-lambda";
-import {
-  KinesisEventSource,
-  SqsEventSource
-} from "@aws-cdk/aws-lambda-event-sources";
-import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
-import { Construct, Duration, Stack, StackProps } from "@aws-cdk/core";
+import { Code, Function, Runtime, StartingPosition } from "@aws-cdk/aws-lambda";
+import { LambdaDestination } from "@aws-cdk/aws-lambda-destinations";
+import { KinesisEventSource } from "@aws-cdk/aws-lambda-event-sources";
+import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -22,31 +13,32 @@ export class InfrastructureStack extends Stack {
       encryption: StreamEncryption.KMS
     });
 
-    const kinesisConsumerDLQ = new Queue(this, "KinesisConsumerDLQ", {
-      encryption: QueueEncryption.KMS_MANAGED,
-      visibilityTimeout: Duration.seconds(30),
-      receiveMessageWaitTime: Duration.seconds(20)
-    });
+    const kinesisConsumerFailureLambda = new Function(
+      this,
+      "KinesisConsumerFailureHandler",
+      {
+        code: Code.fromAsset("../kinesis-consumer-failure/lib"),
+        handler: "failure.handler",
+        runtime: Runtime.NODEJS_10_X
+      }
+    );
 
-    const dlqConsumerLambda = new Function(this, "DLQConsumerHandler", {
-      code: Code.fromAsset("../dlq-consumer/lib"),
-      handler: "consumer.handler",
-      runtime: Runtime.NODEJS_10_X,
-      tracing: Tracing.ACTIVE
-    });
-
-    dlqConsumerLambda.addEventSource(
-      new SqsEventSource(kinesisConsumerDLQ, {
-        batchSize: 10
-      })
+    const kinesisConsumerSuccessLambda = new Function(
+      this,
+      "KinesisConsumerSuccessHandler",
+      {
+        code: Code.fromAsset("../kinesis-consumer-success/lib"),
+        handler: "success.handler",
+        runtime: Runtime.NODEJS_10_X
+      }
     );
 
     const kinesisConsumerLambda = new Function(this, "KinesisConsumerHandler", {
       code: Code.fromAsset("../kinesis-consumer/lib"),
-      deadLetterQueue: kinesisConsumerDLQ,
       handler: "consumer.handler",
-      runtime: Runtime.NODEJS_10_X,
-      tracing: Tracing.ACTIVE
+      onFailure: new LambdaDestination(kinesisConsumerFailureLambda),
+      onSuccess: new LambdaDestination(kinesisConsumerSuccessLambda),
+      runtime: Runtime.NODEJS_10_X
     });
 
     kinesisConsumerLambda.addEventSource(
@@ -62,8 +54,7 @@ export class InfrastructureStack extends Stack {
         KINESIS_STREAM_NAME: kinesisStream.streamName
       },
       handler: "producer.handler",
-      runtime: Runtime.NODEJS_10_X,
-      tracing: Tracing.ACTIVE
+      runtime: Runtime.NODEJS_10_X
     });
 
     kinesisStream.grantWrite(kinesisProducerLambda);
