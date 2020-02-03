@@ -35,9 +35,11 @@ export class PipelineStack extends Stack {
       repo: "infra-as-node",
       oauthToken: sourceOAuth,
       output: sourceOutput,
-      branch: "master",
+      branch: process.env.GITHUB_HEAD_REF,
       trigger: GitHubTrigger.WEBHOOK
     });
+
+    const infrastructureStackName = `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`;
 
     const workspaceBuild = new PipelineProject(this, "WorkspaceBuild", {
       buildSpec: BuildSpec.fromObject({
@@ -46,7 +48,7 @@ export class PipelineStack extends Stack {
           "secondary-artifacts": {
             InfrastructureBuildOutput: {
               "base-directory": "./infrastructure",
-              files: ["cdk.out/InfrastructureStack.template.json"]
+              files: ["`cdk.out/${infrastructureStackName}.template.json"]
             },
             KCLBO: {
               "base-directory": "./kinesis-consumer/lib",
@@ -122,9 +124,9 @@ export class PipelineStack extends Stack {
     const deployAction = new CloudFormationCreateUpdateStackAction({
       actionName: "Infrastructure_Deploy",
       templatePath: infrastructureBuildOutput.atPath(
-        "cdk.out/InfrastructureStack.template.json"
+        `cdk.out/${infrastructureStackName}.template.json`
       ),
-      stackName: "InfrastructureStack",
+      stackName: infrastructureStackName,
       adminPermissions: true,
       parameterOverrides: {
         ...props?.kinesisConsumerLambdaCode.assign(

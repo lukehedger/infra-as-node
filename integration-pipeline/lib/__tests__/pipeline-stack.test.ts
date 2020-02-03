@@ -26,7 +26,6 @@ test("Stack has CodePipeline pipeline resource", () => {
               Configuration: {
                 Owner: "lukehedger",
                 Repo: "infra-as-node",
-                Branch: "master",
                 OAuthToken:
                   "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}",
                 PollForSourceChanges: false

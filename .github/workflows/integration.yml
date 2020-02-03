@@ -12,14 +12,29 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Echo integration
-      run: echo "integration"
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12'
 
-    - name: Echo branch name
-      run: echo $GITHUB_HEAD_REF
+    - name: Cache Node dependencies
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-build-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-${{ env.cache-name }}-
+          ${{ runner.OS }}-build-
+          ${{ runner.OS }}-
 
-    - name: Echo hello branch
-      run: echo "hello $GITHUB_HEAD_REF"
+    - name: Install dependencies
+      run: yarn install --no-progress --non-interactive
 
-    - name: Echo PR number
-      run: echo PR number ${{ github.event.number }}
+    - name: Build integration pipeline
+      run: yarn --cwd integration-pipeline build
+
+    - name: Deploy integration pipeline
+      run: yarn --cwd integration-pipeline deploy --no-staging --require-approval never
+      env:
+        GITHUB_HEAD_REF=$GITHUB_HEAD_REF
+        GITHUB_PR_NUMBER=${{ github.event.number }}

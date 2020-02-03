@@ -5,9 +5,12 @@ import { PipelineStack } from "../lib/pipeline-stack";
 
 const app = new App();
 
-const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
+const infrastructureStack = new InfrastructureStack(
+  app,
+  `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`
+);
 
-new PipelineStack(app, "PipelineStack", {
+new PipelineStack(app, `PipelineStack-${process.env.GITHUB_PR_NUMBER}`, {
   kinesisConsumerLambdaCode: infrastructureStack.kinesisConsumerLambdaCode,
   kinesisConsumerFailureLambdaCode:
     infrastructureStack.kinesisConsumerFailureLambdaCode,

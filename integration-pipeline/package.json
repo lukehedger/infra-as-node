@@ -1,5 +1,5 @@
 {
-  "name": "pipeline",
+  "name": "integration-pipeline",
   "private": true,
   "version": "0.0.0",
   "bin": {
@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "deploy": "cdk deploy PipelineStack",
-    "destroy": "cdk destroy PipelineStack",
+    "deploy": "cdk deploy PipelineStack*",
+    "destroy": "cdk destroy PipelineStack*",
     "diff": "cdk diff",
     "synth": "cdk synth",
     "test": "exit 0",
