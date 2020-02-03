@@ -48,7 +48,7 @@ export class PipelineStack extends Stack {
           "secondary-artifacts": {
             InfrastructureBuildOutput: {
               "base-directory": "./infrastructure",
-              files: ["`cdk.out/${infrastructureStackName}.template.json"]
+              files: [`cdk.out/${infrastructureStackName}.template.json`]
             },
             KCLBO: {
               "base-directory": "./kinesis-consumer/lib",
