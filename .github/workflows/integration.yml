@@ -16,3 +16,6 @@ jobs:
 
     - name: Echo branch name
       run: echo $GITHUB_HEAD_REF
+
+    - name: Echo hello branch
+      run: echo "hello $GITHUB_HEAD_REF"
