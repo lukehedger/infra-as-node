@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
     - master
+    types: [opened]
 
 jobs:
   build:
@@ -19,3 +20,6 @@ jobs:
 
     - name: Echo hello branch
       run: echo "hello $GITHUB_HEAD_REF"
+
+    - name: Echo PR number
+      run: echo "PR number {{ github.event.number }}"
