@@ -4,7 +4,8 @@ import { InfrastructureStack } from "../lib/infrastructure-stack";
 
 const app = new App();
 
-new InfrastructureStack(
-  app,
-  `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`
-);
+const stackName = process.env.GITHUB_PR_NUMBER
+  ? `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`
+  : "InfrastructureStack";
+
+new InfrastructureStack(app, stackName);
