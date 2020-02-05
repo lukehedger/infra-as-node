@@ -36,5 +36,5 @@ jobs:
     - name: Deploy integration pipeline
       run: yarn --cwd integration-pipeline deploy --no-staging --require-approval never
       env:
-        GITHUB_HEAD_REF=$GITHUB_HEAD_REF
+        GITHUB_HEAD_REF=${{ GITHUB_HEAD_REF }}
         GITHUB_PR_NUMBER=${{ github.event.number }}
