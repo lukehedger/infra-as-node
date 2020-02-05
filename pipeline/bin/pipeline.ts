@@ -9,9 +9,5 @@ const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
 
 new PipelineStack(app, "PipelineStack", {
   kinesisConsumerLambdaCode: infrastructureStack.kinesisConsumerLambdaCode,
-  kinesisConsumerFailureLambdaCode:
-    infrastructureStack.kinesisConsumerFailureLambdaCode,
-  kinesisConsumerSuccessLambdaCode:
-    infrastructureStack.kinesisConsumerSuccessLambdaCode,
   kinesisProducerLambdaCode: infrastructureStack.kinesisProducerLambdaCode
 });

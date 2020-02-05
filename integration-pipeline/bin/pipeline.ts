@@ -12,9 +12,5 @@ const infrastructureStack = new InfrastructureStack(
 
 new PipelineStack(app, `PipelineStack-${process.env.GITHUB_PR_NUMBER}`, {
   kinesisConsumerLambdaCode: infrastructureStack.kinesisConsumerLambdaCode,
-  kinesisConsumerFailureLambdaCode:
-    infrastructureStack.kinesisConsumerFailureLambdaCode,
-  kinesisConsumerSuccessLambdaCode:
-    infrastructureStack.kinesisConsumerSuccessLambdaCode,
   kinesisProducerLambdaCode: infrastructureStack.kinesisProducerLambdaCode
 });

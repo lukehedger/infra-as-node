@@ -14,49 +14,21 @@ import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
   public readonly kinesisConsumerLambdaCode: CfnParametersCode;
-  public readonly kinesisConsumerFailureLambdaCode: CfnParametersCode;
-  public readonly kinesisConsumerSuccessLambdaCode: CfnParametersCode;
   public readonly kinesisProducerLambdaCode: CfnParametersCode;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     this.kinesisConsumerLambdaCode = Code.cfnParameters();
-    this.kinesisConsumerFailureLambdaCode = Code.cfnParameters();
-    this.kinesisConsumerSuccessLambdaCode = Code.cfnParameters();
     this.kinesisProducerLambdaCode = Code.cfnParameters();
 
     const kinesisStream = new Stream(this, "KinesisStream", {
       encryption: StreamEncryption.KMS
     });
 
-    const kinesisConsumerFailureLambda = new Function(
-      this,
-      "KinesisConsumerFailureHandler",
-      {
-        code: this.kinesisConsumerFailureLambdaCode,
-        handler: "failure.handler",
-        runtime: Runtime.NODEJS_10_X,
-        tracing: Tracing.ACTIVE
-      }
-    );
-
-    const kinesisConsumerSuccessLambda = new Function(
-      this,
-      "KinesisConsumerSuccessHandler",
-      {
-        code: this.kinesisConsumerSuccessLambdaCode,
-        handler: "success.handler",
-        runtime: Runtime.NODEJS_10_X,
-        tracing: Tracing.ACTIVE
-      }
-    );
-
     const kinesisConsumerLambda = new Function(this, "KinesisConsumerHandler", {
       code: this.kinesisConsumerLambdaCode,
       handler: "consumer.handler",
-      onFailure: new LambdaDestination(kinesisConsumerFailureLambda),
-      onSuccess: new LambdaDestination(kinesisConsumerSuccessLambda),
       runtime: Runtime.NODEJS_10_X,
       tracing: Tracing.ACTIVE
     });

@@ -16,8 +16,6 @@ import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
   readonly kinesisConsumerLambdaCode: CfnParametersCode;
-  readonly kinesisConsumerFailureLambdaCode: CfnParametersCode;
-  readonly kinesisConsumerSuccessLambdaCode: CfnParametersCode;
   readonly kinesisProducerLambdaCode: CfnParametersCode;
 }
 
@@ -54,14 +52,6 @@ export class PipelineStack extends Stack {
               "base-directory": "./kinesis-consumer/lib",
               files: ["consumer.js"]
             },
-            KCFLBO: {
-              "base-directory": "./kinesis-consumer-failure/lib",
-              files: ["failure.js"]
-            },
-            KCSLBO: {
-              "base-directory": "./kinesis-consumer-success/lib",
-              files: ["success.js"]
-            },
             KPLBO: {
               "base-directory": "./kinesis-producer/lib",
               files: ["producer.js"]
@@ -84,10 +74,6 @@ export class PipelineStack extends Stack {
 
     const kinesisConsumerLambdaBuildOutput = new Artifact("KCLBO");
 
-    const kinesisConsumerFailureLambdaBuildOutput = new Artifact("KCFLBO");
-
-    const kinesisConsumerSuccessLambdaBuildOutput = new Artifact("KCSLBO");
-
     const kinesisProducerLambdaBuildOutput = new Artifact("KPLBO");
 
     const buildAction = new CodeBuildAction({
@@ -96,8 +82,6 @@ export class PipelineStack extends Stack {
       outputs: [
         infrastructureBuildOutput,
         kinesisConsumerLambdaBuildOutput,
-        kinesisConsumerFailureLambdaBuildOutput,
-        kinesisConsumerSuccessLambdaBuildOutput,
         kinesisProducerLambdaBuildOutput
       ],
       project: workspaceBuild
@@ -134,20 +118,12 @@ export class PipelineStack extends Stack {
         ...props?.kinesisConsumerLambdaCode.assign(
           kinesisConsumerLambdaBuildOutput.s3Location
         ),
-        ...props?.kinesisConsumerFailureLambdaCode.assign(
-          kinesisConsumerFailureLambdaBuildOutput.s3Location
-        ),
-        ...props?.kinesisConsumerSuccessLambdaCode.assign(
-          kinesisConsumerSuccessLambdaBuildOutput.s3Location
-        ),
         ...props?.kinesisProducerLambdaCode.assign(
           kinesisProducerLambdaBuildOutput.s3Location
         )
       },
       extraInputs: [
         kinesisConsumerLambdaBuildOutput,
-        kinesisConsumerFailureLambdaBuildOutput,
-        kinesisConsumerSuccessLambdaBuildOutput,
         kinesisProducerLambdaBuildOutput
       ]
     });
