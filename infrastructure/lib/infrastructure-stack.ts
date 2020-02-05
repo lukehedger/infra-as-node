@@ -8,7 +8,6 @@ import {
   StartingPosition,
   Tracing
 } from "@aws-cdk/aws-lambda";
-import { LambdaDestination } from "@aws-cdk/aws-lambda-destinations";
 import { KinesisEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
