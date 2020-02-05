@@ -33,4 +33,4 @@ jobs:
     - name: Destroy integration pipeline
       run: yarn --cwd integration-pipeline destroy --require-approval never
       env:
-        GITHUB_PR_NUMBER=${{ github.event.number }}
+        GITHUB_PR_NUMBER: ${{ github.event.number }}
