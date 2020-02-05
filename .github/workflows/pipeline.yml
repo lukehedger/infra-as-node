@@ -1,0 +1,46 @@
+name: Pipeline
+
+on:
+  pull_request:
+    branches:
+    - master
+    paths:
+    - 'pipeline/**'
+    types: [closed]
+
+jobs:
+  deploy-pipeline:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+
+    - name: Cache Node dependencies
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-build-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-${{ env.cache-name }}-
+          ${{ runner.OS }}-build-
+          ${{ runner.OS }}-
+
+    - name: Install dependencies
+      run: yarn install --no-progress --non-interactive
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Build pipeline
+      run: yarn --cwd pipeline build
+
+    - name: Deploy pipeline
+      run: yarn --cwd pipeline deploy --no-staging --require-approval never
