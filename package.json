@@ -17,8 +17,6 @@
     "infrastructure-local",
     "integration-pipeline",
     "kinesis-consumer",
-    "kinesis-consumer-failure",
-    "kinesis-consumer-success",
     "kinesis-producer",
     "pipeline"
   ]

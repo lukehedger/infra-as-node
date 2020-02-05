@@ -1,7 +1,6 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
 import { Stream, StreamEncryption } from "@aws-cdk/aws-kinesis";
 import { Code, Function, Runtime, StartingPosition } from "@aws-cdk/aws-lambda";
-import { LambdaDestination } from "@aws-cdk/aws-lambda-destinations";
 import { KinesisEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
@@ -13,31 +12,9 @@ export class InfrastructureStack extends Stack {
       encryption: StreamEncryption.KMS
     });
 
-    const kinesisConsumerFailureLambda = new Function(
-      this,
-      "KinesisConsumerFailureHandler",
-      {
-        code: Code.fromAsset("../kinesis-consumer-failure/lib"),
-        handler: "failure.handler",
-        runtime: Runtime.NODEJS_10_X
-      }
-    );
-
-    const kinesisConsumerSuccessLambda = new Function(
-      this,
-      "KinesisConsumerSuccessHandler",
-      {
-        code: Code.fromAsset("../kinesis-consumer-success/lib"),
-        handler: "success.handler",
-        runtime: Runtime.NODEJS_10_X
-      }
-    );
-
     const kinesisConsumerLambda = new Function(this, "KinesisConsumerHandler", {
       code: Code.fromAsset("../kinesis-consumer/lib"),
       handler: "consumer.handler",
-      onFailure: new LambdaDestination(kinesisConsumerFailureLambda),
-      onSuccess: new LambdaDestination(kinesisConsumerSuccessLambda),
       runtime: Runtime.NODEJS_10_X
     });
 
