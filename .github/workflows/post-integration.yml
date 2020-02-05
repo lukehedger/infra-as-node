@@ -1,13 +1,13 @@
-name: Integration
+name: Post-integration
 
 on:
   pull_request:
     branches:
     - master
-    types: [opened]
+    types: [closed]
 
 jobs:
-  setup-integration:
+  teardown-integration:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
@@ -30,11 +30,7 @@ jobs:
     - name: Install dependencies
       run: yarn install --no-progress --non-interactive
 
-    - name: Build integration pipeline
-      run: yarn --cwd integration-pipeline build
-
-    - name: Deploy integration pipeline
-      run: yarn --cwd integration-pipeline deploy --no-staging --require-approval never
+    - name: Destroy integration pipeline
+      run: yarn --cwd integration-pipeline destroy --require-approval never
       env:
-        GITHUB_HEAD_REF=$GITHUB_HEAD_REF
         GITHUB_PR_NUMBER=${{ github.event.number }}
