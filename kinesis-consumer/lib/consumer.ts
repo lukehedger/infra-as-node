@@ -14,9 +14,7 @@ export const handler: Handler = async (
         Buffer.from(record.kinesis.data, "base64").toString("ascii")
       );
 
-      if (payload.forceRetry) {
-        throw new Error("Lambda forced to retry");
-      }
+      console.log(payload);
     });
 
     return {
