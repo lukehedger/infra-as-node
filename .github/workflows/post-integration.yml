@@ -1,0 +1,36 @@
+name: Post-integration
+
+on:
+  pull_request:
+    branches:
+    - master
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+
+    - name: Cache Node dependencies
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-build-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-${{ env.cache-name }}-
+          ${{ runner.OS }}-build-
+          ${{ runner.OS }}-
+
+    - name: Install dependencies
+      run: yarn install --no-progress --non-interactive
+
+    - name: Destroy integration pipeline
+      run: yarn --cwd integration-pipeline destroy --require-approval never
+      env:
+        GITHUB_PR_NUMBER=${{ github.event.number }}
