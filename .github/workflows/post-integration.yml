@@ -7,7 +7,7 @@ on:
     types: [closed]
 
 jobs:
-  build:
+  teardown-integration:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
