@@ -195,15 +195,6 @@
     "@aws-cdk/aws-s3" "1.20.0"
     "@aws-cdk/core" "1.20.0"
 
-"@aws-cdk/aws-dynamodb@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.20.0.tgz#eee98426a269cffe395e9a78a3e0e3d7798a3861"
-  integrity sha512-GWT5ouO+BKm9ulM7KrAmEFRLW4OMzfLk1KFttf//pZHu2sPiqkVTalSgJmtpyrppqyaEL7Hfe4HGUFCGJffN9w==
-  dependencies:
-    "@aws-cdk/aws-applicationautoscaling" "1.20.0"
-    "@aws-cdk/aws-iam" "1.20.0"
-    "@aws-cdk/core" "1.20.0"
-
 "@aws-cdk/aws-ec2@1.20.0":
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-ec2/-/aws-ec2-1.20.0.tgz#b10ecc7a1cced2ff89a70ecbf76cb77a14aa67c8"
@@ -323,51 +314,12 @@
     "@aws-cdk/core" "1.20.0"
     "@aws-cdk/region-info" "1.20.0"
 
-"@aws-cdk/aws-kinesis@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kinesis/-/aws-kinesis-1.20.0.tgz#80ab766e78debcd83d32aa1bf3e7f15ffa5d12e3"
-  integrity sha512-yAF+8+mk1nf4mP10NFH7UDoSVWNxcA8hTrD1L9ntfR1EHOq7WTCoMM6uJNOFWhElh/lL8hciIgEBC13f/4G1XQ==
-  dependencies:
-    "@aws-cdk/aws-iam" "1.20.0"
-    "@aws-cdk/aws-kms" "1.20.0"
-    "@aws-cdk/aws-logs" "1.20.0"
-    "@aws-cdk/core" "1.20.0"
-
 "@aws-cdk/aws-kms@1.20.0":
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kms/-/aws-kms-1.20.0.tgz#0e0957cbeff7f00ae89bb44f57ee58925f9c7079"
   integrity sha512-QoQJgqS+sXu1Btv7cWiY3FDElgD/Gtac6uTPg4VAYTiOC3MD0P9Z4Sf+fM7QHypGT9ugnuzTzn/lYnmMJGwoXQ==
   dependencies:
     "@aws-cdk/aws-iam" "1.20.0"
-    "@aws-cdk/core" "1.20.0"
-
-"@aws-cdk/aws-lambda-destinations@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda-destinations/-/aws-lambda-destinations-1.20.0.tgz#3c5a41f209caf5159fa93fe938fa81d60ee397d2"
-  integrity sha512-TnqxneV3tCUUVNMd1nASk25hubK/p7oWHbc/nwYY9eqNRNEhSWNFn9T/X7bMK6+IrXXDBiL1JuopWNr8GmMHCg==
-  dependencies:
-    "@aws-cdk/aws-events" "1.20.0"
-    "@aws-cdk/aws-lambda" "1.20.0"
-    "@aws-cdk/aws-sns" "1.20.0"
-    "@aws-cdk/aws-sqs" "1.20.0"
-    "@aws-cdk/core" "1.20.0"
-
-"@aws-cdk/aws-lambda-event-sources@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda-event-sources/-/aws-lambda-event-sources-1.20.0.tgz#b37849f8008af51a7c32bd7084b4ed4c26966c99"
-  integrity sha512-v+FIlZ6Hlx61+Pkq2VqmtAcqxxnLUy29O9iQepf2ZtPBz5h9VAJ/FcOVVMy3sx3qxyy/UBhEilRSJs0+LXhj2A==
-  dependencies:
-    "@aws-cdk/aws-apigateway" "1.20.0"
-    "@aws-cdk/aws-dynamodb" "1.20.0"
-    "@aws-cdk/aws-events" "1.20.0"
-    "@aws-cdk/aws-iam" "1.20.0"
-    "@aws-cdk/aws-kinesis" "1.20.0"
-    "@aws-cdk/aws-lambda" "1.20.0"
-    "@aws-cdk/aws-s3" "1.20.0"
-    "@aws-cdk/aws-s3-notifications" "1.20.0"
-    "@aws-cdk/aws-sns" "1.20.0"
-    "@aws-cdk/aws-sns-subscriptions" "1.20.0"
-    "@aws-cdk/aws-sqs" "1.20.0"
     "@aws-cdk/core" "1.20.0"
 
 "@aws-cdk/aws-lambda@1.20.0":
@@ -430,18 +382,6 @@
     "@aws-cdk/aws-s3" "1.20.0"
     "@aws-cdk/core" "1.20.0"
     "@aws-cdk/cx-api" "1.20.0"
-
-"@aws-cdk/aws-s3-notifications@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-s3-notifications/-/aws-s3-notifications-1.20.0.tgz#a215b13a108512a854bcb80b3c90806a41b6bb19"
-  integrity sha512-HI9VDgkRsppHL5O/7QEcchjyNqyyg89E2JCiO/OqGa3BP0BoWFmdNr4VxsRVqn4A7DnuU+OQUFeottl41lmY9Q==
-  dependencies:
-    "@aws-cdk/aws-iam" "1.20.0"
-    "@aws-cdk/aws-lambda" "1.20.0"
-    "@aws-cdk/aws-s3" "1.20.0"
-    "@aws-cdk/aws-sns" "1.20.0"
-    "@aws-cdk/aws-sqs" "1.20.0"
-    "@aws-cdk/core" "1.20.0"
 
 "@aws-cdk/aws-s3@1.20.0":
   version "1.20.0"

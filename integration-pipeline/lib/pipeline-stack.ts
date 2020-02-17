@@ -15,8 +15,8 @@ import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
-  readonly kinesisConsumerLambdaCode: CfnParametersCode;
-  readonly kinesisProducerLambdaCode: CfnParametersCode;
+  readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
+  readonly eventbridgeProducerLambdaCode: CfnParametersCode;
 }
 
 export class PipelineStack extends Stack {
@@ -45,15 +45,15 @@ export class PipelineStack extends Stack {
         artifacts: {
           "secondary-artifacts": {
             InfrastructureBuildOutput: {
-              "base-directory": "./infrastructure",
-              files: [`cdk.out/${infrastructureStackName}.template.json`]
+              "base-directory": "./cloud-infrastructure/cdk.out",
+              files: [`${infrastructureStackName}.template.json`]
             },
-            KCLBO: {
-              "base-directory": "./kinesis-consumer/lib",
+            ECLBO: {
+              "base-directory": "./eventbridge-consumer/lib",
               files: ["consumer.js"]
             },
-            KPLBO: {
-              "base-directory": "./kinesis-producer/lib",
+            EPLBO: {
+              "base-directory": "./eventbridge-producer/lib",
               files: ["producer.js"]
             }
           }
@@ -72,17 +72,17 @@ export class PipelineStack extends Stack {
 
     const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
-    const kinesisConsumerLambdaBuildOutput = new Artifact("KCLBO");
+    const eventbridgeConsumerLambdaBuildOutput = new Artifact("ECLBO");
 
-    const kinesisProducerLambdaBuildOutput = new Artifact("KPLBO");
+    const eventbridgeProducerLambdaBuildOutput = new Artifact("EPLBO");
 
     const buildAction = new CodeBuildAction({
       actionName: "Workspace_Build",
       input: sourceOutput,
       outputs: [
         infrastructureBuildOutput,
-        kinesisConsumerLambdaBuildOutput,
-        kinesisProducerLambdaBuildOutput
+        eventbridgeConsumerLambdaBuildOutput,
+        eventbridgeProducerLambdaBuildOutput
       ],
       project: workspaceBuild
     });
@@ -110,21 +110,21 @@ export class PipelineStack extends Stack {
     const deployAction = new CloudFormationCreateUpdateStackAction({
       actionName: "Infrastructure_Deploy",
       templatePath: infrastructureBuildOutput.atPath(
-        `cdk.out/${infrastructureStackName}.template.json`
+        `${infrastructureStackName}.template.json`
       ),
       stackName: infrastructureStackName,
       adminPermissions: true,
       parameterOverrides: {
-        ...props?.kinesisConsumerLambdaCode.assign(
-          kinesisConsumerLambdaBuildOutput.s3Location
+        ...props?.eventbridgeConsumerLambdaCode.assign(
+          eventbridgeConsumerLambdaBuildOutput.s3Location
         ),
-        ...props?.kinesisProducerLambdaCode.assign(
-          kinesisProducerLambdaBuildOutput.s3Location
+        ...props?.eventbridgeProducerLambdaCode.assign(
+          eventbridgeProducerLambdaBuildOutput.s3Location
         )
       },
       extraInputs: [
-        kinesisConsumerLambdaBuildOutput,
-        kinesisProducerLambdaBuildOutput
+        eventbridgeConsumerLambdaBuildOutput,
+        eventbridgeProducerLambdaBuildOutput
       ]
     });
 

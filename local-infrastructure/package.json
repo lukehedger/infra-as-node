@@ -1,5 +1,5 @@
 {
-  "name": "infrastructure-local",
+  "name": "local-infrastructure",
   "private": true,
   "version": "0.0.0",
   "bin": {

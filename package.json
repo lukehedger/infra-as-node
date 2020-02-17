@@ -13,11 +13,11 @@
     "test": "yarn workspaces run test"
   },
   "workspaces": [
-    "infrastructure",
-    "infrastructure-local",
+    "cloud-infrastructure",
+    "local-infrastructure",
     "integration-pipeline",
-    "kinesis-consumer",
-    "kinesis-producer",
-    "pipeline"
+    "eventbridge-consumer",
+    "eventbridge-producer",
+    "production-pipeline"
   ]
 }
