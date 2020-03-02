@@ -1,4 +1,6 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
+import { Rule } from "@aws-cdk/aws-events";
+import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import {
   CfnParametersCode,
   Code,
@@ -18,12 +20,29 @@ export class InfrastructureStack extends Stack {
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
 
-    new Function(this, "EventBridgeConsumerHandler", {
-      code: this.eventbridgeConsumerLambdaCode,
-      handler: "consumer.handler",
-      runtime: Runtime.NODEJS_12_X,
-      tracing: Tracing.ACTIVE
+    const eventbridgeConsumerLambda = new Function(
+      this,
+      "EventBridgeConsumerHandler",
+      {
+        code: this.eventbridgeConsumerLambdaCode,
+        handler: "consumer.handler",
+        runtime: Runtime.NODEJS_12_X,
+        tracing: Tracing.ACTIVE
+      }
+    );
+
+    const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
+      eventPattern: {
+        detail: {
+          status: ["active"]
+        },
+        source: ["aws.lambda"]
+      }
     });
+
+    eventbridgeConsumerRule.addTarget(
+      new LambdaFunction(eventbridgeConsumerLambda)
+    );
 
     const eventbridgeProducerLambda = new Function(
       this,
