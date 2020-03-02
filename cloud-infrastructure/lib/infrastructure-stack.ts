@@ -36,9 +36,16 @@ export class InfrastructureStack extends Stack {
       }
     );
 
+    const stageName = process.env.GITHUB_PR_NUMBER
+      ? `integration-${process.env.GITHUB_PR_NUMBER}`
+      : "prod";
+
     const api = new LambdaRestApi(this, "EventBridgeProducerEndpoint", {
       handler: eventbridgeProducerLambda,
-      proxy: false
+      proxy: false,
+      deployOptions: {
+        stageName: stageName
+      }
     });
 
     const eventbridgeProducerResource = api.root.addResource(
