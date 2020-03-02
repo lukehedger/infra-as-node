@@ -1,16 +1,28 @@
-name: Post-integration
+name: Integration Pipeline
 
 on:
   pull_request:
     branches:
     - master
-    types: [closed]
+    types: [opened]
+  push:
+    branches:
+    - '!master'
+    paths:
+    - 'integration-pipeline/**'
 
 jobs:
-  teardown-integration:
+  setup-integration:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
 
     - name: Setup Node
       uses: actions/setup-node@v1
@@ -30,25 +42,10 @@ jobs:
     - name: Install dependencies
       run: yarn install --no-progress --non-interactive
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2
-
-    - name: Build infrastructure
-      run: yarn --cwd infrastructure build
-
-    - name: Destroy integration infrastructure
-      run: yarn --cwd infrastructure destroy --force
-      env:
-        GITHUB_PR_NUMBER: ${{ github.event.number }}
-
     - name: Build integration pipeline
       run: yarn --cwd integration-pipeline build
 
-    - name: Destroy integration pipeline
-      run: yarn --cwd integration-pipeline destroy --force
+    - name: Deploy integration pipeline
+      run: yarn --cwd integration-pipeline deploy --no-staging --require-approval never
       env:
         GITHUB_PR_NUMBER: ${{ github.event.number }}
