@@ -41,7 +41,7 @@ jobs:
       run: yarn install --no-progress --non-interactive
 
     - name: Build pipeline
-      run: yarn --cwd pipeline build
+      run: yarn --cwd production-pipeline build
 
     - name: Deploy pipeline
-      run: yarn --cwd pipeline deploy --no-staging --require-approval never
+      run: yarn --cwd production-pipeline deploy --no-staging --require-approval never

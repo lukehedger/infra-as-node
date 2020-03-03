@@ -8,7 +8,7 @@
   "scripts": {
     "build": "yarn workspaces run build",
     "build-infra": "yarn build && yarn --cwd infrastructure synth",
-    "deploy-pipeline": "yarn --cwd pipeline build && yarn --cwd pipeline deploy",
+    "deploy-pipeline": "yarn --cwd production-pipeline build && yarn --cwd production-pipeline deploy",
     "dev": "yarn build && yarn --cwd infrastructure-local synth && sam local start-api --template infrastructure-local/cdk.out/InfrastructureStack.template.json",
     "test": "yarn workspaces run test"
   },
