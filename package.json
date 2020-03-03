@@ -15,9 +15,9 @@
   "workspaces": [
     "cloud-infrastructure",
     "local-infrastructure",
-    "integration-pipeline",
     "eventbridge-consumer",
     "eventbridge-producer",
+    "integration-pipeline",
     "production-pipeline"
   ]
 }
