@@ -1,40 +1,27 @@
-import {
-  APIGatewayProxyResult,
-  Handler,
-  KinesisStreamEvent,
-  KinesisStreamRecord
-} from "aws-lambda";
+import { Handler } from "aws-lambda";
+import { createLogger, format, transports } from "winston";
 
-export const handler: Handler = async (
-  event: KinesisStreamEvent
-): Promise<APIGatewayProxyResult> => {
+const logger = createLogger({
+  format: format.combine(
+    format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss"
+    }),
+    format.errors({ stack: true }),
+    format.splat(),
+    format.json()
+  ),
+  defaultMeta: { service: "eventbridge-consumer" },
+  transports: [new transports.Console()]
+});
+
+export const handler: Handler = async event => {
   try {
-    event.Records.map((record: KinesisStreamRecord) => {
-      const payload = JSON.parse(
-        Buffer.from(record.kinesis.data, "base64").toString("ascii")
-      );
+    logger.info("Processed event", event);
 
-      console.log(payload);
-    });
-
-    return {
-      body: JSON.stringify({ recordsProcessed: event.Records.length }),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST",
-        "Content-Type": "application/json"
-      },
-      statusCode: 200
-    };
+    return;
   } catch (error) {
-    return {
-      body: JSON.stringify(error),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST",
-        "Content-Type": "application/json"
-      },
-      statusCode: 500
-    };
+    logger.error(error);
+
+    return;
   }
 };

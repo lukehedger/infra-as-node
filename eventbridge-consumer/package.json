@@ -20,5 +20,7 @@
     "tslib": "1.10.0",
     "typescript": "3.7.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "winston": "3.2.1"
+  }
 }
