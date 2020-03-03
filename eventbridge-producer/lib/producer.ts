@@ -1,11 +1,14 @@
-import { PutRecordCommand, KinesisClient } from "@aws-sdk/client-kinesis-node";
+import {
+  PutEventsCommand,
+  EventBridgeClient
+} from "@aws-sdk/client-eventbridge-node";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Handler
 } from "aws-lambda";
 
-const kinesis = new KinesisClient({
+const eventbridge = new EventBridgeClient({
   region: "eu-west-2"
 });
 
@@ -14,24 +17,26 @@ export const handler: Handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     if (event.body) {
-      const { KINESIS_STREAM_NAME } = process.env;
+      const body = JSON.parse(event.body);
 
-      if (!KINESIS_STREAM_NAME) {
-        throw new Error("Kinesis stream name undefined");
-      }
-
-      const putRecordCommand = new PutRecordCommand({
-        Data: JSON.stringify(event.body),
-        PartitionKey: "1",
-        StreamName: KINESIS_STREAM_NAME
+      const putEventsCommand = new PutEventsCommand({
+        Entries: [
+          {
+            Detail: JSON.stringify({ status: body.status }),
+            DetailType: "AWS Lambda event",
+            Resources: ["aws.lambda"],
+            Source: "aws.lambda",
+            Time: new Date()
+          }
+        ]
       });
 
-      const putRecord = await kinesis.send(putRecordCommand);
+      const putEvents = await eventbridge.send(putEventsCommand);
 
       return {
         body: JSON.stringify({
-          sequenceNumber: putRecord.SequenceNumber,
-          shardId: putRecord.ShardId
+          entries: putEvents.Entries,
+          failedEntryCount: putEvents.FailedEntryCount
         }),
         headers: {
           "Access-Control-Allow-Origin": "*",
