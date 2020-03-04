@@ -1,0 +1,28 @@
+{
+  "name": "github-pipeline-status",
+  "private": true,
+  "version": "0.0.0",
+  "main": "lib/status.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "rollup --config",
+    "test": "exit 0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "4.0.2",
+    "@types/aws-lambda": "8.10.41",
+    "rollup": "1.31.1",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup-plugin-typescript": "1.0.1",
+    "tslib": "1.11.0",
+    "typescript": "3.8.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-codepipeline-node": "0.1.0-preview.2",
+    "@aws-sdk/client-secrets-manager-node": "0.1.0-preview.2",
+    "@octokit/rest": "16.43.1"
+  }
+}
