@@ -1,4 +1,0 @@
-{
-  "app": "node bin/infrastructure.js",
-  "versionReporting": false
-}
