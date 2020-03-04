@@ -1,5 +1,5 @@
 {
-  "name": "kinesis-consumer",
+  "name": "eventbridge-consumer",
   "private": true,
   "version": "0.0.0",
   "main": "lib/consumer.js",
