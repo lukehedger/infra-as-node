@@ -3,18 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "repository": "https://github.com/lukehedger/infra-as-node.git",
-  "author": "lukehedger <lh4@pm.me>",
   "license": "MIT",
   "scripts": {
     "build": "yarn workspaces run build",
-    "build-infra": "yarn build && yarn --cwd cloud-infrastructure synth",
-    "deploy-pipeline": "yarn --cwd production-pipeline build && yarn --cwd production-pipeline deploy",
-    "dev": "yarn build && yarn --cwd infrastructure-local synth && sam local start-api --template infrastructure-local/cdk.out/InfrastructureStack.template.json",
+    "deploy-pipeline": "yarn --cwd production-pipeline build && yarn --cwd production-pipeline deploy --profile tread",
     "test": "yarn workspaces run test"
   },
   "workspaces": [
     "cloud-infrastructure",
-    "local-infrastructure",
     "eventbridge-consumer",
     "eventbridge-producer",
     "integration-pipeline",
