@@ -17,6 +17,8 @@ export const handler: Handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     if (event.body) {
+      console.log(event.body);
+
       const body = JSON.parse(event.body);
 
       const putEventsCommand = new PutEventsCommand({
