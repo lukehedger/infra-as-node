@@ -1,26 +1,31 @@
 import { Handler } from "aws-lambda";
-import { createLogger, format, transports } from "winston";
-
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss"
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()
-  ),
-  defaultMeta: { service: "eventbridge-consumer" },
-  transports: [new transports.Console()]
-});
 
 export const handler: Handler = async event => {
   try {
-    logger.info("Processed event", event);
+    console.info(
+      JSON.stringify({
+        data: event,
+        level: "INFO",
+        message: "Processed event",
+        meta: {
+          service: "eventbridge-consumer"
+        }
+      })
+    );
 
     return;
   } catch (error) {
-    logger.error(error);
+    console.error(
+      JSON.stringify({
+        data: error,
+        level: "ERROR",
+        message: error.message,
+        meta: {
+          service: "eventbridge-consumer"
+        },
+        stack: error.stack
+      })
+    );
 
     return;
   }

@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.34",
+    "@types/bunyan": "1.8.6",
     "rollup": "1.26.2",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-terser": "5.1.2",
@@ -20,7 +21,5 @@
     "tslib": "1.10.0",
     "typescript": "3.7.2"
   },
-  "dependencies": {
-    "winston": "3.2.1"
-  }
+  "dependencies": {}
 }
