@@ -59,10 +59,7 @@ export class PipelineStack extends Stack {
         phases: {
           install: { commands: ["npm install --global yarn", "yarn install"] },
           build: {
-            commands: [
-              "yarn build",
-              `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`
-            ]
+            commands: ["yarn build", "yarn --cwd cloud-infrastructure synth"]
           }
         }
       }),
