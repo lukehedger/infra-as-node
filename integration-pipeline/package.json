@@ -15,21 +15,21 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.26.0",
+    "@aws-cdk/assert": "1.27.0",
     "@types/jest": "24.0.18",
-    "aws-cdk": "1.26.0",
+    "aws-cdk": "1.27.0",
     "jest": "24.9.0",
     "ts-jest": "24.2.0",
     "typescript": "3.7.2"
   },
   "dependencies": {
-    "@aws-cdk/aws-codebuild": "1.26.0",
-    "@aws-cdk/aws-codepipeline": "1.26.0",
-    "@aws-cdk/aws-codepipeline-actions": "1.26.0",
+    "@aws-cdk/aws-codebuild": "1.27.0",
+    "@aws-cdk/aws-codepipeline": "1.27.0",
+    "@aws-cdk/aws-codepipeline-actions": "1.27.0",
     "@aws-cdk/aws-events-targets": "1.27.0",
     "@aws-cdk/aws-iam": "1.27.0",
-    "@aws-cdk/aws-lambda": "1.26.0",
+    "@aws-cdk/aws-lambda": "1.27.0",
     "@aws-cdk/aws-secretsmanager": "1.27.0",
-    "@aws-cdk/core": "1.26.0"
+    "@aws-cdk/core": "1.27.0"
   }
 }
