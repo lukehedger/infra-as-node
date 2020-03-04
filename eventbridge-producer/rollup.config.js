@@ -15,7 +15,10 @@ export default {
     nodeResolve({ preferBuiltins: true }),
     commonjs({
       namedExports: {
-        "@aws-sdk/client-kinesis-node": ["PutRecordCommand", "KinesisClient"]
+        "@aws-sdk/client-eventbridge-node": [
+          "EventBridgeClient",
+          "PutEventsCommand"
+        ]
       }
     }),
     typescript(),
