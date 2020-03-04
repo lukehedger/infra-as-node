@@ -38,10 +38,10 @@ jobs:
       run: yarn install --no-progress --non-interactive
 
     - name: Build infrastructure
-      run: yarn --cwd infrastructure build
+      run: yarn --cwd cloud-infrastructure build
 
     - name: Destroy integration infrastructure
-      run: yarn --cwd infrastructure destroy --force
+      run: yarn --cwd cloud-infrastructure destroy --force
       env:
         GITHUB_PR_NUMBER: ${{ github.event.number }}
 
