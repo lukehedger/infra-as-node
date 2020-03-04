@@ -6,15 +6,11 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const eventbridgeConsumerLambda = new Function(
-      this,
-      "EventBridgeConsumerHandler",
-      {
-        code: Code.fromAsset("../eventbridge-consumer/lib"),
-        handler: "consumer.handler",
-        runtime: Runtime.NODEJS_12_X
-      }
-    );
+    new Function(this, "EventBridgeConsumerHandler", {
+      code: Code.fromAsset("../eventbridge-consumer/lib"),
+      handler: "consumer.handler",
+      runtime: Runtime.NODEJS_12_X
+    });
 
     const eventbridgeProducerLambda = new Function(
       this,
