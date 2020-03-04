@@ -50,7 +50,7 @@ export const handler: Handler = async (
     }
   } catch (error) {
     return {
-      body: JSON.stringify(error),
+      body: JSON.stringify(error, Object.getOwnPropertyNames(error)),
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
