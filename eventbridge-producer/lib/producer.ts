@@ -24,7 +24,7 @@ export const handler: Handler = async (
           {
             Detail: JSON.stringify({ status: body.status }),
             DetailType: "AWS Lambda event",
-            Source: "aws.lambda",
+            Source: "fyi.tread.api",
             Time: new Date()
           }
         ]
