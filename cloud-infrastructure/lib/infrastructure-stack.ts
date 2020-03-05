@@ -1,5 +1,5 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
-import { Rule } from "@aws-cdk/aws-events";
+import { EventBus, Rule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import {
   CfnParametersCode,
@@ -20,6 +20,15 @@ export class InfrastructureStack extends Stack {
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
 
+    const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
+      eventPattern: {
+        detail: {
+          status: ["active"]
+        },
+        source: ["aws.lambda"]
+      }
+    });
+
     const eventbridgeConsumerLambda = new Function(
       this,
       "EventBridgeConsumerHandler",
@@ -30,15 +39,6 @@ export class InfrastructureStack extends Stack {
         tracing: Tracing.ACTIVE
       }
     );
-
-    const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
-      eventPattern: {
-        detail: {
-          status: ["active"]
-        },
-        source: ["aws.lambda"]
-      }
-    });
 
     eventbridgeConsumerRule.addTarget(
       new LambdaFunction(eventbridgeConsumerLambda)
@@ -54,6 +54,8 @@ export class InfrastructureStack extends Stack {
         tracing: Tracing.ACTIVE
       }
     );
+
+    EventBus.grantPutEvents(eventbridgeProducerLambda);
 
     const stageName = process.env.GITHUB_PR_NUMBER
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
