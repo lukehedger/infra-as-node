@@ -79,7 +79,8 @@ export class InfrastructureStack extends Stack {
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
-      proxy: false
+      proxy: false,
+      restApiName: apiName
     });
 
     const eventbridgeProducerResource = api.root.addResource(
