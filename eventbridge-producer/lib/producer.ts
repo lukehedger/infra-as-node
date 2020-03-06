@@ -24,8 +24,7 @@ export const handler: Handler = async (
           {
             Detail: JSON.stringify({ status: body.status }),
             DetailType: "AWS Lambda event",
-            Resources: ["aws.lambda"],
-            Source: "aws.lambda",
+            Source: "com.ian",
             Time: new Date()
           }
         ]
