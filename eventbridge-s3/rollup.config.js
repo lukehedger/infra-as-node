@@ -15,7 +15,7 @@ export default {
     nodeResolve({ preferBuiltins: true }),
     commonjs({
       namedExports: {
-        "@aws-sdk/client-eventbridge-s3": ["PutObjectCommand", "S3Client"]
+        "@aws-sdk/client-s3-node": ["PutObjectCommand", "S3Client"]
       }
     }),
     typescript(),
