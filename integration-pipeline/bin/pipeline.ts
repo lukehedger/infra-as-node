@@ -14,5 +14,6 @@ new PipelineStack(app, `PipelineStack-${process.env.GITHUB_PR_NUMBER}`, {
   eventbridgeConsumerLambdaCode:
     infrastructureStack.eventbridgeConsumerLambdaCode,
   eventbridgeProducerLambdaCode:
-    infrastructureStack.eventbridgeProducerLambdaCode
+    infrastructureStack.eventbridgeProducerLambdaCode,
+  eventbridgeS3LambdaCode: infrastructureStack.eventbridgeS3LambdaCode
 });

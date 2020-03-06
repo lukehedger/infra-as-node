@@ -25,6 +25,7 @@ import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 export interface PipelineStackProps extends StackProps {
   readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   readonly eventbridgeProducerLambdaCode: CfnParametersCode;
+  readonly eventbridgeS3LambdaCode: CfnParametersCode;
 }
 
 export class PipelineStack extends Stack {
@@ -63,6 +64,10 @@ export class PipelineStack extends Stack {
             EPLBO: {
               "base-directory": "./eventbridge-producer/lib",
               files: ["producer.js"]
+            },
+            ESLBO: {
+              "base-directory": "./eventbridge-s3/lib",
+              files: ["consumer.js"]
             }
           }
         },
@@ -87,13 +92,16 @@ export class PipelineStack extends Stack {
 
     const eventbridgeProducerLambdaBuildOutput = new Artifact("EPLBO");
 
+    const eventbridgeS3LambdaBuildOutput = new Artifact("ESLBO");
+
     const buildAction = new CodeBuildAction({
       actionName: "Workspace_Build",
       input: sourceOutput,
       outputs: [
         infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
-        eventbridgeProducerLambdaBuildOutput
+        eventbridgeProducerLambdaBuildOutput,
+        eventbridgeS3LambdaBuildOutput
       ],
       project: workspaceBuild
     });
@@ -131,11 +139,15 @@ export class PipelineStack extends Stack {
         ),
         ...props?.eventbridgeProducerLambdaCode.assign(
           eventbridgeProducerLambdaBuildOutput.s3Location
+        ),
+        ...props?.eventbridgeS3LambdaCode.assign(
+          eventbridgeS3LambdaBuildOutput.s3Location
         )
       },
       extraInputs: [
         eventbridgeConsumerLambdaBuildOutput,
-        eventbridgeProducerLambdaBuildOutput
+        eventbridgeProducerLambdaBuildOutput,
+        eventbridgeS3LambdaBuildOutput
       ]
     });
 

@@ -11,5 +11,6 @@ new PipelineStack(app, "PipelineStack", {
   eventbridgeConsumerLambdaCode:
     infrastructureStack.eventbridgeConsumerLambdaCode,
   eventbridgeProducerLambdaCode:
-    infrastructureStack.eventbridgeProducerLambdaCode
+    infrastructureStack.eventbridgeProducerLambdaCode,
+  eventbridgeS3LambdaCode: infrastructureStack.eventbridgeS3LambdaCode
 });
