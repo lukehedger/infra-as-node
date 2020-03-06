@@ -25,7 +25,7 @@ export class InfrastructureStack extends Stack {
         detail: {
           status: ["active"]
         },
-        source: ["aws.lambda"]
+        source: ["com.ian"]
       }
     });
 
