@@ -8,6 +8,8 @@ import {
   Runtime,
   Tracing
 } from "@aws-cdk/aws-lambda";
+import { SnsDestination } from "@aws-cdk/aws-lambda-destinations";
+import { Topic } from "@aws-cdk/aws-sns";
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
@@ -19,6 +21,11 @@ export class InfrastructureStack extends Stack {
 
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
+
+    const eventBridgeConsumerSuccessTopic = new Topic(
+      this,
+      "EventBridgeConsumerSuccessTopic"
+    );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
@@ -35,6 +42,7 @@ export class InfrastructureStack extends Stack {
       {
         code: this.eventbridgeConsumerLambdaCode,
         handler: "consumer.handler",
+        onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
         runtime: Runtime.NODEJS_12_X,
         tracing: Tracing.ACTIVE
       }
