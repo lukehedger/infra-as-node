@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.34",
-    "@types/bunyan": "1.8.6",
     "rollup": "1.26.2",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-terser": "5.1.2",
