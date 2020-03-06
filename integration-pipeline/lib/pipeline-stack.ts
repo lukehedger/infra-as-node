@@ -11,8 +11,16 @@ import {
   GitHubSourceAction,
   GitHubTrigger
 } from "@aws-cdk/aws-codepipeline-actions";
+import { LambdaFunction } from "@aws-cdk/aws-events-targets";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
+import {
+  CfnParametersCode,
+  Code,
+  Function,
+  Runtime
+} from "@aws-cdk/aws-lambda";
+import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
-import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
   readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
@@ -131,7 +139,7 @@ export class PipelineStack extends Stack {
       ]
     });
 
-    new Pipeline(this, "Pipeline", {
+    const deploymentPipeline = new Pipeline(this, "Pipeline", {
       stages: [
         {
           stageName: "Source",
@@ -150,6 +158,37 @@ export class PipelineStack extends Stack {
           actions: [deployAction]
         }
       ]
+    });
+
+    const pipelineStatusLambda = new Function(this, "PipelineStatusLambda", {
+      code: Code.fromAsset("../pipeline-status/lib"),
+      environment: {
+        AWS_SECRETS_GITHUB: "dev/Tread/GitHubToken",
+        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || "",
+        GITHUB_PR_NUMBER: process.env.GITHUB_PR_NUMBER || ""
+      },
+      functionName: `PipelineStatus-Integration-${process.env.GITHUB_PR_NUMBER}`,
+      handler: "status.handler",
+      runtime: Runtime.NODEJS_12_X
+    });
+
+    pipelineStatusLambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: [deploymentPipeline.pipelineArn],
+        actions: ["codepipeline:GetPipelineExecution"]
+      })
+    );
+
+    const githubSecret = Secret.fromSecretArn(
+      this,
+      "GitHubTokenSecret",
+      "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/GitHubToken*"
+    );
+
+    githubSecret.grantRead(pipelineStatusLambda);
+
+    deploymentPipeline.onStateChange("DeploymentPipelineStateChangeHandler", {
+      target: new LambdaFunction(pipelineStatusLambda)
     });
   }
 }
