@@ -6,13 +6,13 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn workspaces run build",
-    "deploy-pipeline": "yarn --cwd production-pipeline build && yarn --cwd production-pipeline deploy --profile tread",
     "test": "yarn workspaces run test"
   },
   "workspaces": [
     "cloud-infrastructure",
     "eventbridge-consumer",
     "eventbridge-producer",
+    "eventbridge-s3",
     "integration-pipeline",
     "pipeline-status",
     "production-pipeline"
