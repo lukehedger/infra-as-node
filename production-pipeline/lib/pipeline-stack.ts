@@ -87,7 +87,8 @@ export class PipelineStack extends Stack {
       outputs: [
         infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
-        eventbridgeProducerLambdaBuildOutput
+        eventbridgeProducerLambdaBuildOutput,
+        eventbridgeS3LambdaBuildOutput
       ],
       project: workspaceBuild
     });
