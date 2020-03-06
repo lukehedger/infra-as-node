@@ -1,5 +1,5 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
-import { Rule } from "@aws-cdk/aws-events";
+import { EventBus, Rule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import {
   CfnParametersCode,
@@ -8,6 +8,8 @@ import {
   Runtime,
   Tracing
 } from "@aws-cdk/aws-lambda";
+import { SnsDestination } from "@aws-cdk/aws-lambda-destinations";
+import { Topic } from "@aws-cdk/aws-sns";
 import { Construct, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
@@ -20,15 +22,9 @@ export class InfrastructureStack extends Stack {
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
 
-    const eventbridgeConsumerLambda = new Function(
+    const eventBridgeConsumerSuccessTopic = new Topic(
       this,
-      "EventBridgeConsumerHandler",
-      {
-        code: this.eventbridgeConsumerLambdaCode,
-        handler: "consumer.handler",
-        runtime: Runtime.NODEJS_12_X,
-        tracing: Tracing.ACTIVE
-      }
+      "EventBridgeConsumerSuccessTopic"
     );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
@@ -36,9 +32,21 @@ export class InfrastructureStack extends Stack {
         detail: {
           status: ["active"]
         },
-        source: ["aws.lambda"]
+        source: ["com.ian"]
       }
     });
+
+    const eventbridgeConsumerLambda = new Function(
+      this,
+      "EventBridgeConsumerHandler",
+      {
+        code: this.eventbridgeConsumerLambdaCode,
+        handler: "consumer.handler",
+        onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
+        runtime: Runtime.NODEJS_12_X,
+        tracing: Tracing.ACTIVE
+      }
+    );
 
     eventbridgeConsumerRule.addTarget(
       new LambdaFunction(eventbridgeConsumerLambda)
@@ -55,15 +63,13 @@ export class InfrastructureStack extends Stack {
       }
     );
 
-    const apiName = process.env.GITHUB_PR_NUMBER
-      ? `EventBridgeProducerEndpoint-${process.env.GITHUB_PR_NUMBER}`
-      : "EventBridgeProducerEndpoint";
+    EventBus.grantPutEvents(eventbridgeProducerLambda);
 
     const stageName = process.env.GITHUB_PR_NUMBER
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
-    const api = new LambdaRestApi(this, apiName, {
+    const api = new LambdaRestApi(this, "EventBridgeProducerEndpoint", {
       handler: eventbridgeProducerLambda,
       proxy: false,
       deployOptions: {
