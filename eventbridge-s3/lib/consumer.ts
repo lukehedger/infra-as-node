@@ -15,7 +15,7 @@ export const handler: Handler = async event => {
 
     const putObjectCommand = new PutObjectCommand({
       ACL: "public-read",
-      Body: event,
+      Body: JSON.stringify(event),
       Bucket: BUCKET_NAME,
       ContentType: "application/json",
       Key: "event"
