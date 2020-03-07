@@ -55,7 +55,7 @@ export class InfrastructureStack extends Stack {
       new LambdaFunction(eventbridgeConsumerLambda)
     );
 
-    const eventLogBucket = new Bucket(this, "MyFirstBucket");
+    const eventLogBucket = new Bucket(this, "EventLog");
 
     const eventbridgeS3Lambda = new Function(this, "EventBridgeS3Handler", {
       code: this.eventbridgeS3LambdaCode,

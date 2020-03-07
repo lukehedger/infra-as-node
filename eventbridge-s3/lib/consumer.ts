@@ -13,15 +13,13 @@ export const handler: Handler = async event => {
       throw new Error("BUCKET_NAME is undefined");
     }
 
-    event.Entries.map(async (entry: any) => {
-      const putObjectCommand = new PutObjectCommand({
-        Body: entry.detail,
-        Bucket: BUCKET_NAME,
-        Key: "event"
-      });
-
-      await s3.send(putObjectCommand);
+    const putObjectCommand = new PutObjectCommand({
+      Body: event,
+      Bucket: BUCKET_NAME,
+      Key: "event"
     });
+
+    await s3.send(putObjectCommand);
 
     console.info(
       JSON.stringify({
