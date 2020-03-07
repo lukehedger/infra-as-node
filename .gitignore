@@ -6,3 +6,4 @@ cdk.out
 **/bin/**/*.js
 **/lib/**/*.d.ts
 **/lib/**/*.js
+TODO.md
