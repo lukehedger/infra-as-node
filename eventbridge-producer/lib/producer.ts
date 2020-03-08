@@ -7,6 +7,7 @@ import {
   APIGatewayProxyResult,
   Handler
 } from "aws-lambda";
+import cuid from "cuid";
 
 const eventbridge = new EventBridgeClient({
   region: "eu-west-2"
@@ -22,7 +23,10 @@ export const handler: Handler = async (
       const putEventsCommand = new PutEventsCommand({
         Entries: [
           {
-            Detail: JSON.stringify({ status: body.status }),
+            Detail: JSON.stringify({
+              correlationID: cuid(),
+              status: body.status
+            }),
             DetailType: "AWS Lambda event",
             Source: "com.ian",
             Time: new Date()

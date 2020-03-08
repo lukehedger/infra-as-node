@@ -18,7 +18,7 @@ export const handler: Handler = async event => {
       Body: JSON.stringify(event),
       Bucket: BUCKET_NAME,
       ContentType: "application/json",
-      Key: "event"
+      Key: event.correlationID
     });
 
     await s3.send(putObjectCommand);
