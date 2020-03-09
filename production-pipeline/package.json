@@ -27,6 +27,7 @@
     "@aws-cdk/aws-codepipeline": "1.27.0",
     "@aws-cdk/aws-codepipeline-actions": "1.27.0",
     "@aws-cdk/aws-lambda": "1.27.0",
+    "@aws-cdk/aws-s3": "1.27.0",
     "@aws-cdk/core": "1.27.0"
   }
 }

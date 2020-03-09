@@ -1,4 +1,5 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
+import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
 import { EventBus, Rule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import {
@@ -11,7 +12,7 @@ import {
 import { SnsDestination } from "@aws-cdk/aws-lambda-destinations";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { Topic } from "@aws-cdk/aws-sns";
-import { Construct, Stack, StackProps } from "@aws-cdk/core";
+import { Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
   public readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
@@ -107,5 +108,25 @@ export class InfrastructureStack extends Stack {
     );
 
     eventbridgeProducerResource.addMethod("POST");
+
+    const staticAppBucketName = process.env.GITHUB_PR_NUMBER
+      ? `static-app-${process.env.GITHUB_PR_NUMBER}`
+      : "static-app-production";
+
+    const staticAppBucket = new Bucket(this, "StaticAppSource", {
+      bucketName: staticAppBucketName,
+      publicReadAccess: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      websiteIndexDocument: "index.html"
+    });
+
+    new CloudFrontWebDistribution(this, "StaticAppDistribution", {
+      originConfigs: [
+        {
+          behaviors: [{ isDefaultBehavior: true }],
+          s3OriginSource: { s3BucketSource: staticAppBucket }
+        }
+      ]
+    });
   }
 }

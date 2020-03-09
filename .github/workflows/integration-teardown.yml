@@ -40,6 +40,9 @@ jobs:
     - name: Build infrastructure
       run: yarn --cwd cloud-infrastructure build
 
+    - name: Teardown AWS S3 integration bucket
+      run: aws s3 rb s3://static-app-${{ github.event.number }} --force
+
     - name: Destroy integration infrastructure
       run: yarn --cwd cloud-infrastructure destroy --force
       env:

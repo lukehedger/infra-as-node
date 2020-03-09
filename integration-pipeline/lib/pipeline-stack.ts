@@ -9,7 +9,8 @@ import {
   CodeBuildAction,
   CodeBuildActionType,
   GitHubSourceAction,
-  GitHubTrigger
+  GitHubTrigger,
+  S3DeployAction
 } from "@aws-cdk/aws-codepipeline-actions";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
@@ -19,6 +20,7 @@ import {
   Function,
   Runtime
 } from "@aws-cdk/aws-lambda";
+import { Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 
@@ -68,6 +70,10 @@ export class PipelineStack extends Stack {
             ESLBO: {
               "base-directory": "./eventbridge-s3/lib",
               files: ["consumer.js"]
+            },
+            StaticAppBucket: {
+              "base-directory": "./static-app",
+              files: ["index.html"]
             }
           }
         },
@@ -94,6 +100,8 @@ export class PipelineStack extends Stack {
 
     const eventbridgeS3LambdaBuildOutput = new Artifact("ESLBO");
 
+    const staticAppBuildOutput = new Artifact("StaticAppBucket");
+
     const buildAction = new CodeBuildAction({
       actionName: "Workspace_Build",
       input: sourceOutput,
@@ -101,7 +109,8 @@ export class PipelineStack extends Stack {
         infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
         eventbridgeProducerLambdaBuildOutput,
-        eventbridgeS3LambdaBuildOutput
+        eventbridgeS3LambdaBuildOutput,
+        staticAppBuildOutput
       ],
       project: workspaceBuild
     });
@@ -126,29 +135,42 @@ export class PipelineStack extends Stack {
       type: CodeBuildActionType.TEST
     });
 
-    const deployAction = new CloudFormationCreateUpdateStackAction({
-      actionName: "Infrastructure_Deploy",
-      templatePath: infrastructureBuildOutput.atPath(
-        `${infrastructureStackName}.template.json`
+    const deployInfrastructureAction = new CloudFormationCreateUpdateStackAction(
+      {
+        actionName: "Infrastructure_Deploy",
+        templatePath: infrastructureBuildOutput.atPath(
+          `${infrastructureStackName}.template.json`
+        ),
+        stackName: infrastructureStackName,
+        adminPermissions: true,
+        parameterOverrides: {
+          ...props?.eventbridgeConsumerLambdaCode.assign(
+            eventbridgeConsumerLambdaBuildOutput.s3Location
+          ),
+          ...props?.eventbridgeProducerLambdaCode.assign(
+            eventbridgeProducerLambdaBuildOutput.s3Location
+          ),
+          ...props?.eventbridgeS3LambdaCode.assign(
+            eventbridgeS3LambdaBuildOutput.s3Location
+          )
+        },
+        extraInputs: [
+          eventbridgeConsumerLambdaBuildOutput,
+          eventbridgeProducerLambdaBuildOutput,
+          eventbridgeS3LambdaBuildOutput
+        ]
+      }
+    );
+
+    const deployStaticAppAction = new S3DeployAction({
+      actionName: "Static_App_Deploy",
+      bucket: Bucket.fromBucketName(
+        this,
+        "StaticAppSource",
+        `static-app-${process.env.GITHUB_PR_NUMBER}`
       ),
-      stackName: infrastructureStackName,
-      adminPermissions: true,
-      parameterOverrides: {
-        ...props?.eventbridgeConsumerLambdaCode.assign(
-          eventbridgeConsumerLambdaBuildOutput.s3Location
-        ),
-        ...props?.eventbridgeProducerLambdaCode.assign(
-          eventbridgeProducerLambdaBuildOutput.s3Location
-        ),
-        ...props?.eventbridgeS3LambdaCode.assign(
-          eventbridgeS3LambdaBuildOutput.s3Location
-        )
-      },
-      extraInputs: [
-        eventbridgeConsumerLambdaBuildOutput,
-        eventbridgeProducerLambdaBuildOutput,
-        eventbridgeS3LambdaBuildOutput
-      ]
+      input: staticAppBuildOutput,
+      runOrder: 2
     });
 
     const deploymentPipeline = new Pipeline(this, "Pipeline", {
@@ -167,7 +189,7 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Deploy",
-          actions: [deployAction]
+          actions: [deployInfrastructureAction, deployStaticAppAction]
         }
       ]
     });
