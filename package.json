@@ -15,6 +15,7 @@
     "eventbridge-s3",
     "integration-pipeline",
     "pipeline-status",
-    "production-pipeline"
+    "production-pipeline",
+    "static-app"
   ]
 }
