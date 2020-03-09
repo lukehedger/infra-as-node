@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "build": "exit 0",
-    "dev": "servor --reload"
+    "dev": "servor --reload",
+    "test": "exit 0"
   },
   "devDependencies": {
     "servor": "3.2.0"
