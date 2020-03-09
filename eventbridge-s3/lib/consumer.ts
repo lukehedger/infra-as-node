@@ -13,6 +13,12 @@ export const handler: Handler = async event => {
       throw new Error("BUCKET_NAME is undefined");
     }
 
+    console.log(
+      JSON.stringify({
+        correlationID: event.correlationID
+      })
+    );
+
     const putObjectCommand = new PutObjectCommand({
       ACL: "public-read",
       Body: JSON.stringify(event),
