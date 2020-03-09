@@ -15,7 +15,7 @@ export const handler: Handler = async event => {
 
     console.log(
       JSON.stringify({
-        correlationID: event.correlationID
+        correlationID: event.detail.correlationID
       })
     );
 
@@ -24,14 +24,14 @@ export const handler: Handler = async event => {
       Body: JSON.stringify(event),
       Bucket: BUCKET_NAME,
       ContentType: "application/json",
-      Key: event.correlationID
+      Key: event.detail.correlationID
     });
 
     await s3.send(putObjectCommand);
 
     console.info(
       JSON.stringify({
-        data: event,
+        event: event,
         level: "INFO",
         message: "Processed event",
         meta: {
@@ -44,7 +44,8 @@ export const handler: Handler = async event => {
   } catch (error) {
     console.error(
       JSON.stringify({
-        data: error,
+        error: error,
+        event: event,
         level: "ERROR",
         message: error.message,
         meta: {

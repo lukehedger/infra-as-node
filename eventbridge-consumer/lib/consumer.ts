@@ -4,7 +4,7 @@ export const handler: Handler = async event => {
   try {
     console.info(
       JSON.stringify({
-        data: event,
+        event: event,
         level: "INFO",
         message: "Processed event",
         meta: {
@@ -17,7 +17,8 @@ export const handler: Handler = async event => {
   } catch (error) {
     console.error(
       JSON.stringify({
-        data: error,
+        error: error,
+        event: event,
         level: "ERROR",
         message: error.message,
         meta: {
