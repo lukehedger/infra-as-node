@@ -45,6 +45,9 @@ export class InfrastructureStack extends Stack {
       "EventBridgeConsumerHandler",
       {
         code: this.eventbridgeConsumerLambdaCode,
+        functionName: process.env.GITHUB_PR_NUMBER
+          ? `EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeConsumer-Production",
         handler: "consumer.handler",
         onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
         runtime: Runtime.NODEJS_12_X,
@@ -63,6 +66,9 @@ export class InfrastructureStack extends Stack {
       environment: {
         BUCKET_NAME: eventLogBucket.bucketName
       },
+      functionName: process.env.GITHUB_PR_NUMBER
+        ? `EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`
+        : "EventBridgeS3-Production",
       handler: "consumer.handler",
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE
@@ -77,6 +83,9 @@ export class InfrastructureStack extends Stack {
       "EventBridgeProducerHandler",
       {
         code: this.eventbridgeProducerLambdaCode,
+        functionName: process.env.GITHUB_PR_NUMBER
+          ? `EventBridgeProducer-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeProducer-Production",
         handler: "producer.handler",
         runtime: Runtime.NODEJS_12_X,
         tracing: Tracing.ACTIVE
