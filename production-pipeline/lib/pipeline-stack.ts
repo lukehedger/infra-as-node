@@ -160,7 +160,15 @@ export class PipelineStack extends Stack {
       runOrder: 2
     });
 
-    new Pipeline(this, "Pipeline", {
+    const pipelineName = "DeploymentPipeline-Production";
+
+    const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
+      bucketName: pipelineName.toLowerCase()
+    });
+
+    new Pipeline(this, "ProductionDeploymentPipeline", {
+      artifactBucket: deploymentPipelineArtifactBucket,
+      pipelineName: pipelineName,
       stages: [
         {
           stageName: "Source",

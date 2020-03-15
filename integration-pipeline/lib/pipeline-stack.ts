@@ -173,26 +173,38 @@ export class PipelineStack extends Stack {
       runOrder: 2
     });
 
-    const deploymentPipeline = new Pipeline(this, "Pipeline", {
-      stages: [
-        {
-          stageName: "Source",
-          actions: [sourceAction]
-        },
-        {
-          stageName: "Build",
-          actions: [buildAction]
-        },
-        {
-          stageName: "Test",
-          actions: [testAction]
-        },
-        {
-          stageName: "Deploy",
-          actions: [deployInfrastructureAction, deployStaticAppAction]
-        }
-      ]
+    const pipelineName = `DeploymentPipeline-Integration-${process.env.GITHUB_PR_NUMBER}`;
+
+    const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
+      bucketName: pipelineName.toLowerCase()
     });
+
+    const deploymentPipeline = new Pipeline(
+      this,
+      "IntegrationDeploymentPipeline",
+      {
+        pipelineName: pipelineName,
+        artifactBucket: deploymentPipelineArtifactBucket,
+        stages: [
+          {
+            stageName: "Source",
+            actions: [sourceAction]
+          },
+          {
+            stageName: "Build",
+            actions: [buildAction]
+          },
+          {
+            stageName: "Test",
+            actions: [testAction]
+          },
+          {
+            stageName: "Deploy",
+            actions: [deployInfrastructureAction, deployStaticAppAction]
+          }
+        ]
+      }
+    );
 
     const pipelineStatusLambda = new Function(this, "PipelineStatusLambda", {
       code: Code.fromAsset("../pipeline-status/lib"),
