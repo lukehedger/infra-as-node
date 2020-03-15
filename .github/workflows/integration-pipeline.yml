@@ -42,6 +42,9 @@ jobs:
     - name: Install dependencies
       run: yarn install --no-progress --non-interactive
 
+    - name: Build GitHub pipeline status Lambda
+      run: yarn --cwd pipeline-status build
+
     - name: Build integration pipeline
       run: yarn --cwd integration-pipeline build
 
