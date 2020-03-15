@@ -36,6 +36,17 @@ export const handler: Handler = async (
 
       const putEvents = await eventbridge.send(putEventsCommand);
 
+      console.info(
+        JSON.stringify({
+          event: event,
+          level: "INFO",
+          message: "Put event",
+          meta: {
+            service: "eventbridge-producer"
+          }
+        })
+      );
+
       return {
         body: JSON.stringify({
           entries: putEvents.Entries,
@@ -52,6 +63,19 @@ export const handler: Handler = async (
       throw new Error("Request body is empty");
     }
   } catch (error) {
+    console.error(
+      JSON.stringify({
+        error: error,
+        event: event,
+        level: "ERROR",
+        message: error.message,
+        meta: {
+          service: "eventbridge-producer"
+        },
+        stack: error.stack
+      })
+    );
+
     return {
       body: JSON.stringify(error, Object.getOwnPropertyNames(error)),
       headers: {
