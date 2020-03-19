@@ -179,6 +179,8 @@ export class PipelineStack extends Stack {
       bucketName: pipelineName.toLowerCase()
     });
 
+    console.log(deploymentPipelineArtifactBucket.bucketArn);
+
     const deploymentPipeline = new Pipeline(
       this,
       "IntegrationDeploymentPipeline",
