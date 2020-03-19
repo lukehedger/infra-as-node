@@ -20,7 +20,7 @@ import {
   Function,
   Runtime
 } from "@aws-cdk/aws-lambda";
-import { Bucket } from "@aws-cdk/aws-s3";
+import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 
@@ -176,7 +176,8 @@ export class PipelineStack extends Stack {
     const pipelineName = `DeploymentPipeline-Integration-${process.env.GITHUB_PR_NUMBER}`;
 
     const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
-      bucketName: pipelineName.toLowerCase()
+      bucketName: pipelineName.toLowerCase(),
+      encryption: BucketEncryption.KMS_MANAGED
     });
 
     const deploymentPipeline = new Pipeline(

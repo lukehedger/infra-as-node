@@ -12,7 +12,7 @@ import {
   GitHubTrigger,
   S3DeployAction
 } from "@aws-cdk/aws-codepipeline-actions";
-import { Bucket } from "@aws-cdk/aws-s3";
+import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
@@ -163,7 +163,8 @@ export class PipelineStack extends Stack {
     const pipelineName = "DeploymentPipeline-Production";
 
     const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
-      bucketName: pipelineName.toLowerCase()
+      bucketName: pipelineName.toLowerCase(),
+      encryption: BucketEncryption.KMS_MANAGED
     });
 
     new Pipeline(this, "ProductionDeploymentPipeline", {
