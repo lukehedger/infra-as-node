@@ -60,10 +60,12 @@ export class InfrastructureStack extends Stack {
     );
 
     const eventLogBucketName = process.env.GITHUB_PR_NUMBER
-      ? `eventlog-integration-${process.env.GITHUB_PR_NUMBER}`
-      : "eventlog-production";
+      ? `EventLog-Integration-${process.env.GITHUB_PR_NUMBER}`
+      : "EventLog-Production";
 
-    const eventLogBucket = new Bucket(this, eventLogBucketName);
+    const eventLogBucket = new Bucket(this, eventLogBucketName, {
+      bucketName: eventLogBucketName.toLowerCase()
+    });
 
     const eventbridgeS3Lambda = new Function(this, "EventBridgeS3Handler", {
       code: this.eventbridgeS3LambdaCode,
