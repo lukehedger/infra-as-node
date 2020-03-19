@@ -59,7 +59,11 @@ export class InfrastructureStack extends Stack {
       new LambdaFunction(eventbridgeConsumerLambda)
     );
 
-    const eventLogBucket = new Bucket(this, "EventLog");
+    const eventLogBucketName = process.env.GITHUB_PR_NUMBER
+      ? `eventlog-integration-${process.env.GITHUB_PR_NUMBER}`
+      : "eventlog-production";
+
+    const eventLogBucket = new Bucket(this, eventLogBucketName);
 
     const eventbridgeS3Lambda = new Function(this, "EventBridgeS3Handler", {
       code: this.eventbridgeS3LambdaCode,

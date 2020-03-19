@@ -43,6 +43,9 @@ jobs:
     - name: Teardown AWS S3 integration UI bucket
       run: aws s3 rb s3://static-app-${{ github.event.number }} --force
 
+    - name: Teardown AWS S3 integration event log bucket
+      run: aws s3 rb s3://eventlog-integration-${{ github.event.number }} --force
+
     - name: Teardown AWS S3 integration pipeline artifact bucket
       run: aws s3 rb s3://deploymentpipeline-integration-${{ github.event.number }} --force
 
