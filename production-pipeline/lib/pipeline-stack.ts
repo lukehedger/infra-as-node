@@ -63,7 +63,7 @@ export class PipelineStack extends Stack {
             },
             StaticAppBucket: {
               "base-directory": "./static-app",
-              files: ["index.html"]
+              files: ["build/**/*"]
             }
           }
         },

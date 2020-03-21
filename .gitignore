@@ -6,4 +6,6 @@ cdk.out
 **/bin/**/*.js
 **/lib/**/*.d.ts
 **/lib/**/*.js
+static-app/build
+static-app/coverage
 TODO.md
