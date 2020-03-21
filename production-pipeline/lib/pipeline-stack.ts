@@ -62,8 +62,8 @@ export class PipelineStack extends Stack {
               files: ["consumer.js"]
             },
             StaticAppBucket: {
-              "base-directory": "./static-app",
-              files: ["build/**/*"]
+              "base-directory": "./static-app/build",
+              files: ["**/*"]
             }
           }
         },
