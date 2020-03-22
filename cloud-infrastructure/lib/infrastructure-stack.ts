@@ -17,6 +17,7 @@ import {
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { Bucket } from "@aws-cdk/aws-s3";
+import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
 import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
 import { Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
@@ -34,6 +35,12 @@ export class InfrastructureStack extends Stack {
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
     this.eventbridgeS3LambdaCode = Code.cfnParameters();
     this.slackAlertingLambdaCode = Code.cfnParameters();
+
+    const SlackAPISecret = Secret.fromSecretArn(
+      this,
+      "SlackAPISecret",
+      "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
+    );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
@@ -135,6 +142,8 @@ export class InfrastructureStack extends Stack {
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE
     });
+
+    SlackAPISecret.grantRead(slackAlertingLambda);
 
     const apiName = process.env.GITHUB_PR_NUMBER
       ? `EventBridgeProducerEndpoint-Integration-${process.env.GITHUB_PR_NUMBER}`
