@@ -16,6 +16,7 @@
     "integration-pipeline",
     "pipeline-status",
     "production-pipeline",
+    "slack-alerting",
     "static-app"
   ]
 }

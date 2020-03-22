@@ -15,6 +15,7 @@ import {
   SnsDestination,
   SqsDestination
 } from "@aws-cdk/aws-lambda-destinations";
+import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { Topic } from "@aws-cdk/aws-sns";
 import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
@@ -24,6 +25,7 @@ export class InfrastructureStack extends Stack {
   public readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   public readonly eventbridgeProducerLambdaCode: CfnParametersCode;
   public readonly eventbridgeS3LambdaCode: CfnParametersCode;
+  public readonly slackAlertingLambdaCode: CfnParametersCode;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -31,6 +33,7 @@ export class InfrastructureStack extends Stack {
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
     this.eventbridgeS3LambdaCode = Code.cfnParameters();
+    this.slackAlertingLambdaCode = Code.cfnParameters();
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
@@ -119,6 +122,19 @@ export class InfrastructureStack extends Stack {
     );
 
     EventBus.grantPutEvents(eventbridgeProducerLambda);
+
+    const slackAlertingLambda = new Function(this, "SlackAlertingLambda", {
+      code: this.slackAlertingLambdaCode,
+      environment: {
+        AWS_SECRETS_SLACK: "dev/Tread/SlackAPI"
+      },
+      functionName: process.env.GITHUB_PR_NUMBER
+        ? `SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
+        : "SlackAlerting-Production",
+      handler: "alerting.handler",
+      runtime: Runtime.NODEJS_12_X,
+      tracing: Tracing.ACTIVE
+    });
 
     const apiName = process.env.GITHUB_PR_NUMBER
       ? `EventBridgeProducerEndpoint-Integration-${process.env.GITHUB_PR_NUMBER}`
@@ -215,6 +231,10 @@ export class InfrastructureStack extends Stack {
         ? `ApplicationAlertsTopic-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "ApplicationAlertsTopic-Production"
     });
+
+    slackAlertingLambda.addEventSource(
+      new SnsEventSource(applicationAlertsTopic)
+    );
 
     const eventbridgeConsumerLambdaErrorsAlarm = eventbridgeConsumerLambda
       .metricErrors()

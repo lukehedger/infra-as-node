@@ -20,6 +20,7 @@ export interface PipelineStackProps extends StackProps {
   readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   readonly eventbridgeProducerLambdaCode: CfnParametersCode;
   readonly eventbridgeS3LambdaCode: CfnParametersCode;
+  readonly slackAlertingLambdaCode: CfnParametersCode;
 }
 
 export class PipelineStack extends Stack {
@@ -40,7 +41,7 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK
     });
 
-    const workspaceBuild = new PipelineProject(this, "WorkspaceBuild", {
+    const microserviceBuild = new PipelineProject(this, "MicroserviceBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         artifacts: {
@@ -61,14 +62,16 @@ export class PipelineStack extends Stack {
               "base-directory": "./eventbridge-s3/lib",
               files: ["consumer.js"]
             },
-            StaticAppBucket: {
-              "base-directory": "./static-app/build",
-              files: ["**/*"]
+            SALBO: {
+              "base-directory": "./slack-alerting/lib",
+              files: ["alerting.js"]
             }
           }
         },
         phases: {
-          install: { commands: ["npm install --global yarn", "yarn install"] },
+          install: {
+            commands: ["npm install --global yarn", "yarn install"]
+          },
           build: {
             commands: ["yarn build", "yarn --cwd cloud-infrastructure synth"]
           }
@@ -87,19 +90,51 @@ export class PipelineStack extends Stack {
 
     const eventbridgeS3LambdaBuildOutput = new Artifact("ESLBO");
 
-    const staticAppBuildOutput = new Artifact("StaticAppBucket");
+    const slackAlertingLambdaBuildOutput = new Artifact("SALBO");
 
-    const buildAction = new CodeBuildAction({
-      actionName: "Workspace_Build",
+    const microserviceBuildAction = new CodeBuildAction({
+      actionName: "Microservice_Build",
       input: sourceOutput,
       outputs: [
         infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
         eventbridgeProducerLambdaBuildOutput,
         eventbridgeS3LambdaBuildOutput,
-        staticAppBuildOutput
+        slackAlertingLambdaBuildOutput
       ],
-      project: workspaceBuild
+      project: microserviceBuild
+    });
+
+    const staticAppBuild = new PipelineProject(this, "StaticAppBuild", {
+      buildSpec: BuildSpec.fromObject({
+        version: "0.2",
+        artifacts: {
+          "secondary-artifacts": {
+            StaticAppBucket: {
+              "base-directory": "./static-app/build",
+              files: ["**/*"]
+            }
+          }
+        },
+        phases: {
+          install: { commands: ["npm install --global yarn", "yarn install"] },
+          build: {
+            commands: ["yarn --cwd static-app build"]
+          }
+        }
+      }),
+      environment: {
+        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
+      }
+    });
+
+    const staticAppBuildOutput = new Artifact("StaticAppBucket");
+
+    const staticAppBuildAction = new CodeBuildAction({
+      actionName: "StaticApp_Build",
+      input: sourceOutput,
+      outputs: [staticAppBuildOutput],
+      project: staticAppBuild
     });
 
     const workspaceTest = new PipelineProject(this, "WorkspaceTest", {
@@ -139,12 +174,16 @@ export class PipelineStack extends Stack {
           ),
           ...props?.eventbridgeS3LambdaCode.assign(
             eventbridgeS3LambdaBuildOutput.s3Location
+          ),
+          ...props?.slackAlertingLambdaCode.assign(
+            slackAlertingLambdaBuildOutput.s3Location
           )
         },
         extraInputs: [
           eventbridgeConsumerLambdaBuildOutput,
           eventbridgeProducerLambdaBuildOutput,
-          eventbridgeS3LambdaBuildOutput
+          eventbridgeS3LambdaBuildOutput,
+          slackAlertingLambdaBuildOutput
         ]
       }
     );
@@ -177,7 +216,7 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Build",
-          actions: [buildAction]
+          actions: [microserviceBuildAction, staticAppBuildAction]
         },
         {
           stageName: "Test",
