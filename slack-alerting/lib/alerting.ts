@@ -35,29 +35,31 @@ export const handler: Handler = async (event: SNSEvent) => {
 
     const { SLACK_WEBHOOK_URL } = JSON.parse(slackSecret);
 
-    event.Records.map(async (record: SNSEventRecord) => {
-      try {
-        await got.post(SLACK_WEBHOOK_URL, {
-          body: JSON.stringify({ text: record.Sns.Message }),
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-
-        console.info(
-          JSON.stringify({
-            event: record,
-            level: "INFO",
-            message: "Processed notification record",
-            meta: {
-              service: "slack-alerting"
+    await Promise.all(
+      event.Records.map(async (record: SNSEventRecord) => {
+        try {
+          await got.post(SLACK_WEBHOOK_URL, {
+            body: JSON.stringify({ text: record.Sns.Message }),
+            headers: {
+              "Content-Type": "application/json"
             }
-          })
-        );
-      } catch (error) {
-        throw error;
-      }
-    });
+          });
+
+          console.info(
+            JSON.stringify({
+              event: record,
+              level: "INFO",
+              message: "Processed notification record",
+              meta: {
+                service: "slack-alerting"
+              }
+            })
+          );
+        } catch (error) {
+          throw error;
+        }
+      })
+    );
 
     console.info(
       JSON.stringify({
