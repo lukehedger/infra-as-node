@@ -120,12 +120,9 @@ export class PipelineStack extends Stack {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         artifacts: {
-          "secondary-artifacts": {
-            StaticAppBucket: {
-              "base-directory": "./static-app/build",
-              files: ["**/*"]
-            }
-          }
+          "base-directory": "./static-app/build",
+          files: ["**/*"],
+          name: "StaticAppBucket"
         },
         phases: {
           install: { commands: ["npm install --global yarn", "yarn install"] },
