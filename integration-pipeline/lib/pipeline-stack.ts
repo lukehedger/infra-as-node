@@ -145,22 +145,43 @@ export class PipelineStack extends Stack {
       project: staticAppBuild
     });
 
-    const workspaceTest = new PipelineProject(this, "WorkspaceTest", {
-      buildSpec: BuildSpec.fromObject({
-        version: "0.2",
-        phases: {
-          install: { commands: ["npm install --global yarn", "yarn install"] },
-          build: { commands: "yarn test" }
+    const workspaceIntegrationTest = new PipelineProject(
+      this,
+      "WorkspaceIntegrationTest",
+      {
+        buildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          phases: {
+            install: {
+              commands: ["npm install --global yarn", "yarn install"]
+            },
+            build: {
+              commands:
+                "GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test"
+            }
+          }
+        }),
+        environment: {
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
         }
-      }),
-      environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
       }
-    });
+    );
 
-    const testAction = new CodeBuildAction({
-      actionName: "Workspace_Test",
-      project: workspaceTest,
+    workspaceIntegrationTest.addToRolePolicy(
+      new PolicyStatement({
+        resources: [
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeProducer-Integration-${process.env.GITHUB_PR_NUMBER}`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
+        ],
+        actions: ["lambda:InvokeFunction"]
+      })
+    );
+
+    const integrationTestAction = new CodeBuildAction({
+      actionName: "Workspace_Integration_Test",
+      project: workspaceIntegrationTest,
       input: sourceOutput,
       type: CodeBuildActionType.TEST
     });
@@ -230,12 +251,12 @@ export class PipelineStack extends Stack {
             actions: [microserviceBuildAction, staticAppBuildAction]
           },
           {
-            stageName: "Test",
-            actions: [testAction]
-          },
-          {
             stageName: "Deploy",
             actions: [deployInfrastructureAction, deployStaticAppAction]
+          },
+          {
+            stageName: "Test",
+            actions: [integrationTestAction]
           }
         ]
       }

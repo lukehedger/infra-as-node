@@ -11,7 +11,7 @@
     "destroy": "cdk destroy PipelineStack*",
     "diff": "cdk diff",
     "synth": "cdk synth",
-    "test": "exit 0",
+    "test": "jest",
     "watch": "tsc -w"
   },
   "devDependencies": {

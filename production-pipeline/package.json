@@ -11,7 +11,7 @@
     "destroy": "cdk destroy PipelineStack",
     "diff": "cdk diff",
     "synth": "cdk synth",
-    "test": "exit 0",
+    "test": "jest",
     "watch": "tsc -w"
   },
   "devDependencies": {
@@ -26,6 +26,7 @@
     "@aws-cdk/aws-codebuild": "1.30.0",
     "@aws-cdk/aws-codepipeline": "1.30.0",
     "@aws-cdk/aws-codepipeline-actions": "1.30.0",
+    "@aws-cdk/aws-iam": "1.30.0",
     "@aws-cdk/aws-lambda": "1.30.0",
     "@aws-cdk/aws-s3": "1.30.0",
     "@aws-cdk/core": "1.30.0"

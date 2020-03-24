@@ -12,6 +12,7 @@ import {
   GitHubTrigger,
   S3DeployAction
 } from "@aws-cdk/aws-codepipeline-actions";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
@@ -134,22 +135,40 @@ export class PipelineStack extends Stack {
       project: staticAppBuild
     });
 
-    const workspaceTest = new PipelineProject(this, "WorkspaceTest", {
-      buildSpec: BuildSpec.fromObject({
-        version: "0.2",
-        phases: {
-          install: { commands: ["npm install --global yarn", "yarn install"] },
-          build: { commands: "yarn test" }
+    const workspaceIntegrationTest = new PipelineProject(
+      this,
+      "WorkspaceIntegrationTest",
+      {
+        buildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          phases: {
+            install: {
+              commands: ["npm install --global yarn", "yarn install"]
+            },
+            build: { commands: "yarn test" }
+          }
+        }),
+        environment: {
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
         }
-      }),
-      environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
       }
-    });
+    );
 
-    const testAction = new CodeBuildAction({
-      actionName: "Workspace_Test",
-      project: workspaceTest,
+    workspaceIntegrationTest.addToRolePolicy(
+      new PolicyStatement({
+        resources: [
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeConsumer-Production`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeProducer-Production`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeS3-Production`,
+          `arn:aws:lambda:eu-west-2:614517326458:function:SlackAlerting-Production`
+        ],
+        actions: ["lambda:InvokeFunction"]
+      })
+    );
+
+    const integrationTestAction = new CodeBuildAction({
+      actionName: "Workspace_Integration_Test",
+      project: workspaceIntegrationTest,
       input: sourceOutput,
       type: CodeBuildActionType.TEST
     });
@@ -216,12 +235,12 @@ export class PipelineStack extends Stack {
           actions: [microserviceBuildAction, staticAppBuildAction]
         },
         {
-          stageName: "Test",
-          actions: [testAction]
-        },
-        {
           stageName: "Deploy",
           actions: [deployInfrastructureAction, deployStaticAppAction]
+        },
+        {
+          stageName: "Test",
+          actions: [integrationTestAction]
         }
       ]
     });
