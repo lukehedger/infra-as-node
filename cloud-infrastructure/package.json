@@ -31,6 +31,8 @@
     "@aws-cdk/aws-lambda": "1.30.0",
     "@aws-cdk/aws-lambda-destinations": "1.30.0",
     "@aws-cdk/aws-lambda-event-sources": "1.30.0",
+    "@aws-cdk/aws-route53": "1.30.0",
+    "@aws-cdk/aws-route53-targets": "1.30.0",
     "@aws-cdk/aws-s3": "1.30.0",
     "@aws-cdk/aws-secretsmanager": "1.30.0",
     "@aws-cdk/aws-sns": "1.30.0",
