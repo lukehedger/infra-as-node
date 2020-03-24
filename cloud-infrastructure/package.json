@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "1.30.0",
+    "@aws-cdk/aws-certificatemanager": "1.30.0",
     "@aws-cdk/aws-cloudfront": "1.30.0",
     "@aws-cdk/aws-cloudwatch-actions": "1.30.0",
     "@aws-cdk/aws-events": "1.30.0",

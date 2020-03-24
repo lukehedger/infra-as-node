@@ -1,5 +1,9 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
-import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
+import { Certificate } from "@aws-cdk/aws-certificatemanager";
+import {
+  CloudFrontWebDistribution,
+  ViewerCertificate
+} from "@aws-cdk/aws-cloudfront";
 import { Dashboard, GraphWidget, Row } from "@aws-cdk/aws-cloudwatch";
 import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
 import { EventBus, Rule } from "@aws-cdk/aws-events";
@@ -42,6 +46,12 @@ export class InfrastructureStack extends Stack {
       this,
       "SlackAPISecret",
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
+    );
+
+    const certificate = Certificate.fromCertificateArn(
+      this,
+      "Certificate",
+      "arn:aws:acm:eu-west-2:614517326458:certificate/2225b5c3-0465-4405-bdaa-23f90f49fcc7"
     );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
@@ -155,9 +165,15 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
+    const apiDomainName = "api.ian.level-out.com";
+
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName
+      },
+      domainName: {
+        certificate: certificate,
+        domainName: apiDomainName
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
@@ -170,7 +186,7 @@ export class InfrastructureStack extends Stack {
       "APIHostedZone",
       {
         hostedZoneId: "Z05832222C44O8CIIQ4OT",
-        zoneName: "api.ian.level-out.com"
+        zoneName: apiDomainName
       }
     );
 
@@ -206,7 +222,8 @@ export class InfrastructureStack extends Stack {
             behaviors: [{ isDefaultBehavior: true }],
             s3OriginSource: { s3BucketSource: staticAppBucket }
           }
-        ]
+        ],
+        viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate)
       }
     );
 
