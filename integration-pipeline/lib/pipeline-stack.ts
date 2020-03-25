@@ -156,8 +156,7 @@ export class PipelineStack extends Stack {
               commands: ["npm install --global yarn", "yarn install"]
             },
             build: {
-              commands:
-                "GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test"
+              commands: `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test`
             }
           }
         }),
