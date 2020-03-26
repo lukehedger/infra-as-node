@@ -1,5 +1,9 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
-import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
+import { Certificate } from "@aws-cdk/aws-certificatemanager";
+import {
+  CloudFrontWebDistribution,
+  ViewerCertificate
+} from "@aws-cdk/aws-cloudfront";
 import { Dashboard, GraphWidget, Row } from "@aws-cdk/aws-cloudwatch";
 import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
 import { EventBus, Rule } from "@aws-cdk/aws-events";
@@ -16,6 +20,8 @@ import {
   SqsDestination
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
+import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
+import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
@@ -40,6 +46,12 @@ export class InfrastructureStack extends Stack {
       this,
       "SlackAPISecret",
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
+    );
+
+    const certificate = Certificate.fromCertificateArn(
+      this,
+      "Certificate",
+      "arn:aws:acm:eu-west-2:614517326458:certificate/d1ca0e70-927d-4803-ae1b-0363eb1e549a"
     );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
@@ -153,14 +165,34 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
+    const apiDomainName = "api.ian.level-out.com";
+
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName
+      },
+      domainName: {
+        certificate: certificate,
+        domainName: apiDomainName
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
       proxy: false,
       restApiName: apiName
+    });
+
+    const apiHostedZone = HostedZone.fromHostedZoneAttributes(
+      this,
+      "APIHostedZone",
+      {
+        hostedZoneId: "Z05832222C44O8CIIQ4OT",
+        zoneName: apiDomainName
+      }
+    );
+
+    new ARecord(this, "StaticAppDistributionAliasRecord", {
+      target: RecordTarget.fromAlias(new ApiGateway(api)),
+      zone: apiHostedZone
     });
 
     const eventbridgeProducerResource = api.root.addResource(
@@ -181,13 +213,34 @@ export class InfrastructureStack extends Stack {
       websiteIndexDocument: "index.html"
     });
 
-    new CloudFrontWebDistribution(this, "StaticAppDistribution", {
-      originConfigs: [
-        {
-          behaviors: [{ isDefaultBehavior: true }],
-          s3OriginSource: { s3BucketSource: staticAppBucket }
-        }
-      ]
+    const staticAppDistribution = new CloudFrontWebDistribution(
+      this,
+      "StaticAppDistribution",
+      {
+        originConfigs: [
+          {
+            behaviors: [{ isDefaultBehavior: true }],
+            s3OriginSource: { s3BucketSource: staticAppBucket }
+          }
+        ],
+        viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate)
+      }
+    );
+
+    const staticAppHostedZone = HostedZone.fromHostedZoneAttributes(
+      this,
+      "StaticAppHostedZone",
+      {
+        hostedZoneId: " Z0598212RUKTJD8647W3",
+        zoneName: "ian.level-out.com"
+      }
+    );
+
+    new ARecord(this, "StaticAppDistributionAliasRecord", {
+      target: RecordTarget.fromAlias(
+        new CloudFrontTarget(staticAppDistribution)
+      ),
+      zone: staticAppHostedZone
     });
 
     const godModeDashboardName = process.env.GITHUB_PR_NUMBER
