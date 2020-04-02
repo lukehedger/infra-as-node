@@ -1,4 +1,4 @@
-import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
+import "@aws-cdk/assert/jest";
 import { App } from "@aws-cdk/core";
 import { PipelineStack } from "../pipeline-stack";
 
@@ -11,162 +11,171 @@ beforeAll(() => {
 });
 
 test("Stack has CodePipeline pipeline resource", () => {
-  expectCDK(stack).to(
-    haveResource("AWS::CodePipeline::Pipeline", {
-      Stages: [
-        {
-          Actions: [
-            {
-              ActionTypeId: {
-                Category: "Source",
-                Owner: "ThirdParty",
-                Provider: "GitHub",
-                Version: "1"
+  expect(stack).toHaveResourceLike("AWS::CodePipeline::Pipeline", {
+    Stages: [
+      {
+        Actions: [
+          {
+            ActionTypeId: {
+              Category: "Source",
+              Owner: "ThirdParty",
+              Provider: "GitHub"
+            },
+            Configuration: {
+              Owner: "lukehedger",
+              Repo: "infra-as-node",
+              Branch: "master",
+              OAuthToken:
+                "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}",
+              PollForSourceChanges: false
+            },
+            Name: "GitHub_Source",
+            OutputArtifacts: [
+              {
+                Name: "Artifact_Source_GitHub_Source"
+              }
+            ]
+          }
+        ],
+        Name: "Source"
+      },
+      {
+        Actions: [
+          {
+            ActionTypeId: {
+              Category: "Build",
+              Owner: "AWS",
+              Provider: "CodeBuild"
+            },
+            InputArtifacts: [
+              {
+                Name: "Artifact_Source_GitHub_Source"
+              }
+            ],
+            Name: "Microservice_Build",
+            OutputArtifacts: [
+              {
+                Name: "InfrastructureBuildOutput"
               },
-              Configuration: {
-                Owner: "lukehedger",
-                Repo: "infra-as-node",
-                Branch: "master",
-                OAuthToken:
-                  "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}",
-                PollForSourceChanges: false
+              {
+                Name: "ECLBO"
               },
-              Name: "GitHub_Source",
-              OutputArtifacts: [
-                {
-                  Name: "Artifact_Source_GitHub_Source"
-                }
-              ],
-              RunOrder: 1
-            }
-          ],
-          Name: "Source"
-        },
-        {
-          Actions: [
-            {
-              ActionTypeId: {
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild",
-                Version: "1"
+              {
+                Name: "EPLBO"
               },
-              Configuration: {
-                ProjectName: {
-                  Ref: "WorkspaceBuildF1E1759B"
-                }
+              {
+                Name: "ESLBO"
               },
-              InputArtifacts: [
-                {
-                  Name: "Artifact_Source_GitHub_Source"
-                }
-              ],
-              Name: "Workspace_Build",
-              OutputArtifacts: [
-                {
-                  Name: "InfrastructureBuildOutput"
-                },
-                {
-                  Name: "PingLambdaBuildOutput"
-                }
-              ],
-              RoleArn: {
-                "Fn::GetAtt": [
-                  "PipelineBuildWorkspaceBuildCodePipelineActionRole3B2F594C",
-                  "Arn"
-                ]
+              {
+                Name: "SALBO"
+              }
+            ]
+          },
+          {
+            ActionTypeId: {
+              Category: "Build",
+              Owner: "AWS",
+              Provider: "CodeBuild"
+            },
+            InputArtifacts: [
+              {
+                Name: "Artifact_Source_GitHub_Source"
+              }
+            ],
+            Name: "StaticApp_Build",
+            OutputArtifacts: [
+              {
+                Name: "StaticAppBucket"
+              }
+            ]
+          }
+        ],
+        Name: "Build"
+      },
+      {
+        Actions: [
+          {
+            ActionTypeId: {
+              Category: "Deploy",
+              Owner: "AWS",
+              Provider: "CloudFormation"
+            },
+            Configuration: {
+              StackName: "InfrastructureStack",
+              Capabilities: "CAPABILITY_NAMED_IAM",
+              ParameterOverrides: "{}",
+              ActionMode: "CREATE_UPDATE",
+              TemplatePath:
+                "InfrastructureBuildOutput::InfrastructureStack.template.json"
+            },
+            InputArtifacts: [
+              {
+                Name: "ECLBO"
               },
-              RunOrder: 1
-            }
-          ],
-          Name: "Build"
-        },
-        {
-          Actions: [
-            {
-              ActionTypeId: {
-                Category: "Test",
-                Owner: "AWS",
-                Provider: "CodeBuild",
-                Version: "1"
+              {
+                Name: "EPLBO"
               },
-              Configuration: {
-                ProjectName: {
-                  Ref: "WorkspaceTest3C00C8EC"
-                }
+              {
+                Name: "ESLBO"
               },
-              InputArtifacts: [
-                {
-                  Name: "Artifact_Source_GitHub_Source"
-                }
-              ],
-              Name: "Workspace_Test",
-              RoleArn: {
-                "Fn::GetAtt": [
-                  "PipelineTestWorkspaceTestCodePipelineActionRole2A51DFFC",
-                  "Arn"
-                ]
+              {
+                Name: "SALBO"
               },
-              RunOrder: 1
-            }
-          ],
-          Name: "Test"
-        },
-        {
-          Actions: [
-            {
-              ActionTypeId: {
-                Category: "Deploy",
-                Owner: "AWS",
-                Provider: "CloudFormation",
-                Version: "1"
-              },
-              Configuration: {
-                StackName: "InfrastructureStack",
-                Capabilities: "CAPABILITY_NAMED_IAM",
-                RoleArn: {
-                  "Fn::GetAtt": [
-                    "PipelineDeployInfrastructureDeployRole7CD91CDA",
-                    "Arn"
-                  ]
-                },
-                ParameterOverrides: "{}",
-                ActionMode: "CREATE_UPDATE",
-                TemplatePath:
-                  "InfrastructureBuildOutput::cdk.out/InfrastructureStack.template.json"
-              },
-              InputArtifacts: [
-                {
-                  Name: "PingLambdaBuildOutput"
-                },
-                {
-                  Name: "InfrastructureBuildOutput"
-                }
-              ],
-              Name: "Infrastructure_Deploy",
-              RoleArn: {
-                "Fn::GetAtt": [
-                  "PipelineDeployInfrastructureDeployCodePipelineActionRoleE6380BCC",
-                  "Arn"
-                ]
-              },
-              RunOrder: 1
-            }
-          ],
-          Name: "Deploy"
-        }
-      ]
-    })
-  );
+              {
+                Name: "InfrastructureBuildOutput"
+              }
+            ],
+            Name: "Infrastructure_Deploy",
+            RunOrder: 1
+          },
+          {
+            ActionTypeId: {
+              Category: "Deploy",
+              Owner: "AWS",
+              Provider: "S3"
+            },
+            Configuration: {
+              BucketName: "static-app-production",
+              Extract: "true"
+            },
+            InputArtifacts: [
+              {
+                Name: "StaticAppBucket"
+              }
+            ],
+            Name: "Static_App_Deploy",
+            RunOrder: 2
+          }
+        ],
+        Name: "Deploy"
+      },
+      {
+        Actions: [
+          {
+            ActionTypeId: {
+              Category: "Test",
+              Owner: "AWS",
+              Provider: "CodeBuild"
+            },
+            InputArtifacts: [
+              {
+                Name: "Artifact_Source_GitHub_Source"
+              }
+            ],
+            Name: "Workspace_Integration_Test"
+          }
+        ],
+        Name: "Test"
+      }
+    ]
+  });
 });
 
 test("Stack has CodePipeline GitHub webhook resource", () => {
-  expectCDK(stack).to(
-    haveResource("AWS::CodePipeline::Webhook", {
-      AuthenticationConfiguration: {
-        SecretToken:
-          "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}"
-      }
-    })
-  );
+  expect(stack).toHaveResource("AWS::CodePipeline::Webhook", {
+    AuthenticationConfiguration: {
+      SecretToken:
+        "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}"
+    }
+  });
 });
