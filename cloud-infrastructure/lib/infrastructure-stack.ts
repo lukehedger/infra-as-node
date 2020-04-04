@@ -217,6 +217,20 @@ export class InfrastructureStack extends Stack {
       this,
       "StaticAppDistribution",
       {
+        errorConfigurations: [
+          {
+            errorCachingMinTtl: 0,
+            errorCode: 403,
+            responseCode: 200,
+            responsePagePath: "/index.html"
+          },
+          {
+            errorCachingMinTtl: 0,
+            errorCode: 404,
+            responseCode: 200,
+            responsePagePath: "/index.html"
+          }
+        ],
         originConfigs: [
           {
             behaviors: [{ isDefaultBehavior: true }],
