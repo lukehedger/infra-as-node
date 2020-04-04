@@ -8,6 +8,7 @@ import {
   CfnParametersCode,
   Code,
   Function,
+  LayerVersion,
   Runtime,
   Tracing
 } from "@aws-cdk/aws-lambda";
@@ -23,6 +24,7 @@ import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
 import { Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
+  public readonly dependencyLayerLambdaCode: CfnParametersCode;
   public readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   public readonly eventbridgeProducerLambdaCode: CfnParametersCode;
   public readonly eventbridgeS3LambdaCode: CfnParametersCode;
@@ -31,6 +33,7 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
+    this.dependencyLayerLambdaCode = Code.cfnParameters();
     this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
     this.eventbridgeProducerLambdaCode = Code.cfnParameters();
     this.eventbridgeS3LambdaCode = Code.cfnParameters();
@@ -41,6 +44,11 @@ export class InfrastructureStack extends Stack {
       "SlackAPISecret",
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
     );
+
+    const dependencyLayer = new LayerVersion(this, "DependencyLayer", {
+      code: this.dependencyLayerLambdaCode,
+      compatibleRuntimes: [Runtime.NODEJS_12_X]
+    });
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
@@ -73,6 +81,7 @@ export class InfrastructureStack extends Stack {
           ? `EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventBridgeConsumer-Production",
         handler: "consumer.handler",
+        layers: [dependencyLayer],
         onFailure: new SqsDestination(eventBridgeConsumerFailureQueue),
         onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
         runtime: Runtime.NODEJS_12_X,
@@ -105,6 +114,7 @@ export class InfrastructureStack extends Stack {
         ? `EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "EventBridgeS3-Production",
       handler: "consumer.handler",
+      layers: [dependencyLayer],
       onFailure: new SqsDestination(eventLogFailureQueue),
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE
@@ -123,6 +133,7 @@ export class InfrastructureStack extends Stack {
           ? `EventBridgeProducer-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventBridgeProducer-Production",
         handler: "producer.handler",
+        layers: [dependencyLayer],
         runtime: Runtime.NODEJS_12_X,
         tracing: Tracing.ACTIVE
       }
@@ -139,6 +150,7 @@ export class InfrastructureStack extends Stack {
         ? `SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "SlackAlerting-Production",
       handler: "alerting.handler",
+      layers: [dependencyLayer],
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE
     });

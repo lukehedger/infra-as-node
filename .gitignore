@@ -1,4 +1,5 @@
 .DS_Store
+.env
 node_modules
 *.log
 cdk.out
@@ -6,6 +7,7 @@ cdk.out
 **/bin/**/*.js
 **/lib/**/*.d.ts
 **/lib/**/*.js
+dependency-layer/nodejs/**
 static-app/build
 static-app/coverage
 TODO.md

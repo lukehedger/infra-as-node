@@ -25,6 +25,7 @@ import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 
 export interface PipelineStackProps extends StackProps {
+  readonly dependencyLayerLambdaCode: CfnParametersCode;
   readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   readonly eventbridgeProducerLambdaCode: CfnParametersCode;
   readonly eventbridgeS3LambdaCode: CfnParametersCode;
@@ -75,6 +76,10 @@ export class PipelineStack extends Stack {
             SALBO: {
               "base-directory": "./slack-alerting/lib",
               files: ["alerting.js"]
+            },
+            DepsLayer: {
+              "base-directory": "./dependency-layer",
+              files: ["**/*"]
             }
           }
         },
@@ -83,7 +88,8 @@ export class PipelineStack extends Stack {
           build: {
             commands: [
               "yarn build",
-              `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`
+              `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
+              "yarn layer"
             ]
           }
         }
@@ -103,6 +109,8 @@ export class PipelineStack extends Stack {
 
     const slackAlertingLambdaBuildOutput = new Artifact("SALBO");
 
+    const dependencyLayerBuildOutput = new Artifact("DepsLayer");
+
     const microserviceBuildAction = new CodeBuildAction({
       actionName: "Microservice_Build",
       input: sourceOutput,
@@ -111,7 +119,8 @@ export class PipelineStack extends Stack {
         eventbridgeConsumerLambdaBuildOutput,
         eventbridgeProducerLambdaBuildOutput,
         eventbridgeS3LambdaBuildOutput,
-        slackAlertingLambdaBuildOutput
+        slackAlertingLambdaBuildOutput,
+        dependencyLayerBuildOutput
       ],
       project: microserviceBuild
     });
@@ -205,13 +214,17 @@ export class PipelineStack extends Stack {
           ),
           ...props?.slackAlertingLambdaCode.assign(
             slackAlertingLambdaBuildOutput.s3Location
+          ),
+          ...props?.dependencyLayerLambdaCode.assign(
+            dependencyLayerBuildOutput.s3Location
           )
         },
         extraInputs: [
           eventbridgeConsumerLambdaBuildOutput,
           eventbridgeProducerLambdaBuildOutput,
           eventbridgeS3LambdaBuildOutput,
-          slackAlertingLambdaBuildOutput
+          slackAlertingLambdaBuildOutput,
+          dependencyLayerBuildOutput
         ]
       }
     );

@@ -25,7 +25,7 @@ export const handler: Handler = async (event: SNSEvent) => {
 
     const slackSecret = secretValue.SecretString
       ? secretValue.SecretString
-      : secretValue.SecretBinary.toString();
+      : secretValue.SecretBinary?.toString();
 
     if (!slackSecret) {
       throw new Error(

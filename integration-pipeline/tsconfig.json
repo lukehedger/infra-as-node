@@ -11,5 +11,5 @@
     "strict": true,
     "target": "ES2018"
   },
-  "exclude": ["cdk.out"]
+  "exclude": ["cdk.out", "**/__tests__"]
 }

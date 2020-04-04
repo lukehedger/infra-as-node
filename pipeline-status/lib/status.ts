@@ -41,7 +41,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
 
     const githubAccessToken = secretValue.SecretString
       ? secretValue.SecretString
-      : secretValue.SecretBinary.toString();
+      : secretValue.SecretBinary?.toString();
 
     if (!githubAccessToken) {
       throw new Error(
