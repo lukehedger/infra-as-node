@@ -165,15 +165,9 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
-    const apiDomainName = "api.ian.level-out.com";
-
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName
-      },
-      domainName: {
-        certificate: certificate,
-        domainName: apiDomainName
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
