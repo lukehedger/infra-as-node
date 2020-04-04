@@ -21,7 +21,7 @@ import {
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
-import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
+import { CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
@@ -179,20 +179,6 @@ export class InfrastructureStack extends Stack {
       handler: eventbridgeProducerLambda,
       proxy: false,
       restApiName: apiName
-    });
-
-    const apiHostedZone = HostedZone.fromHostedZoneAttributes(
-      this,
-      "APIHostedZone",
-      {
-        hostedZoneId: "Z05832222C44O8CIIQ4OT",
-        zoneName: apiDomainName
-      }
-    );
-
-    new ARecord(this, "StaticAppDistributionAliasRecord", {
-      target: RecordTarget.fromAlias(new ApiGateway(api)),
-      zone: apiHostedZone
     });
 
     const eventbridgeProducerResource = api.root.addResource(
