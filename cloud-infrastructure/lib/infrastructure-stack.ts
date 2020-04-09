@@ -2,7 +2,7 @@ import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
 import { Certificate } from "@aws-cdk/aws-certificatemanager";
 import {
   CloudFrontWebDistribution,
-  ViewerCertificate
+  ViewerCertificate,
 } from "@aws-cdk/aws-cloudfront";
 import { Dashboard, GraphWidget, Row } from "@aws-cdk/aws-cloudwatch";
 import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
@@ -13,11 +13,11 @@ import {
   Code,
   Function,
   Runtime,
-  Tracing
+  Tracing,
 } from "@aws-cdk/aws-lambda";
 import {
   SnsDestination,
-  SqsDestination
+  SqsDestination,
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
@@ -57,10 +57,10 @@ export class InfrastructureStack extends Stack {
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
         detail: {
-          status: ["active"]
+          status: ["active"],
         },
-        source: ["com.ian"]
-      }
+        source: ["com.ian"],
+      },
     });
 
     const eventBridgeConsumerSuccessTopic = new Topic(
@@ -72,7 +72,7 @@ export class InfrastructureStack extends Stack {
       this,
       "EventBridgeConsumerFailureQueue",
       {
-        encryption: QueueEncryption.KMS_MANAGED
+        encryption: QueueEncryption.KMS_MANAGED,
       }
     );
 
@@ -88,7 +88,7 @@ export class InfrastructureStack extends Stack {
         onFailure: new SqsDestination(eventBridgeConsumerFailureQueue),
         onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
         runtime: Runtime.NODEJS_12_X,
-        tracing: Tracing.ACTIVE
+        tracing: Tracing.ACTIVE,
       }
     );
 
@@ -101,17 +101,17 @@ export class InfrastructureStack extends Stack {
       : "EventLog-Production";
 
     const eventLogBucket = new Bucket(this, eventLogBucketName, {
-      bucketName: eventLogBucketName.toLowerCase()
+      bucketName: eventLogBucketName.toLowerCase(),
     });
 
     const eventLogFailureQueue = new Queue(this, "EventLogFailureQueue", {
-      encryption: QueueEncryption.KMS_MANAGED
+      encryption: QueueEncryption.KMS_MANAGED,
     });
 
     const eventbridgeS3Lambda = new Function(this, "EventBridgeS3Handler", {
       code: this.eventbridgeS3LambdaCode,
       environment: {
-        BUCKET_NAME: eventLogBucket.bucketName
+        BUCKET_NAME: eventLogBucket.bucketName,
       },
       functionName: process.env.GITHUB_PR_NUMBER
         ? `EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`
@@ -119,7 +119,7 @@ export class InfrastructureStack extends Stack {
       handler: "consumer.handler",
       onFailure: new SqsDestination(eventLogFailureQueue),
       runtime: Runtime.NODEJS_12_X,
-      tracing: Tracing.ACTIVE
+      tracing: Tracing.ACTIVE,
     });
 
     eventbridgeConsumerRule.addTarget(new LambdaFunction(eventbridgeS3Lambda));
@@ -136,7 +136,7 @@ export class InfrastructureStack extends Stack {
           : "EventBridgeProducer-Production",
         handler: "producer.handler",
         runtime: Runtime.NODEJS_12_X,
-        tracing: Tracing.ACTIVE
+        tracing: Tracing.ACTIVE,
       }
     );
 
@@ -145,14 +145,14 @@ export class InfrastructureStack extends Stack {
     const slackAlertingLambda = new Function(this, "SlackAlertingLambda", {
       code: this.slackAlertingLambdaCode,
       environment: {
-        AWS_SECRETS_SLACK: "dev/Tread/SlackAPI"
+        AWS_SECRETS_SLACK: "dev/Tread/SlackAPI",
       },
       functionName: process.env.GITHUB_PR_NUMBER
         ? `SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "SlackAlerting-Production",
       handler: "alerting.handler",
       runtime: Runtime.NODEJS_12_X,
-      tracing: Tracing.ACTIVE
+      tracing: Tracing.ACTIVE,
     });
 
     SlackAPISecret.grantRead(slackAlertingLambda);
@@ -167,12 +167,12 @@ export class InfrastructureStack extends Stack {
 
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
-        stageName: stageName
+        stageName: stageName,
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
       proxy: false,
-      restApiName: apiName
+      restApiName: apiName,
     });
 
     const eventbridgeProducerResource = api.root.addResource(
@@ -190,7 +190,7 @@ export class InfrastructureStack extends Stack {
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
       websiteErrorDocument: "index.html",
-      websiteIndexDocument: "index.html"
+      websiteIndexDocument: "index.html",
     });
 
     const staticAppDistribution = new CloudFrontWebDistribution(
@@ -202,22 +202,32 @@ export class InfrastructureStack extends Stack {
             errorCachingMinTtl: 0,
             errorCode: 403,
             responseCode: 200,
-            responsePagePath: "/index.html"
+            responsePagePath: "/index.html",
           },
           {
             errorCachingMinTtl: 0,
             errorCode: 404,
             responseCode: 200,
-            responsePagePath: "/index.html"
-          }
+            responsePagePath: "/index.html",
+          },
         ],
         originConfigs: [
           {
             behaviors: [{ isDefaultBehavior: true }],
-            s3OriginSource: { s3BucketSource: staticAppBucket }
-          }
+            originHeaders: {
+              "Content-Security-Policy":
+                "default-src https: 'unsafe-inline'; img-src https: data: blob:; object-src 'none'; frame-ancestors 'self';",
+              "Strict-Transport-Security":
+                "max-age=63072000; includeSubDomains; preload",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "X-Content-Type-Options": "nosniff",
+              "X-XSS-Protection": "1; mode=block",
+            },
+            s3OriginSource: { s3BucketSource: staticAppBucket },
+          },
         ],
-        viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate)
+        viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate),
       }
     );
 
@@ -226,7 +236,7 @@ export class InfrastructureStack extends Stack {
       "StaticAppHostedZone",
       {
         hostedZoneId: " Z0598212RUKTJD8647W3",
-        zoneName: "ian.level-out.com"
+        zoneName: "ian.level-out.com",
       }
     );
 
@@ -234,7 +244,7 @@ export class InfrastructureStack extends Stack {
       target: RecordTarget.fromAlias(
         new CloudFrontTarget(staticAppDistribution)
       ),
-      zone: staticAppHostedZone
+      zone: staticAppHostedZone,
     });
 
     const godModeDashboardName = process.env.GITHUB_PR_NUMBER
@@ -242,7 +252,7 @@ export class InfrastructureStack extends Stack {
       : "Dashboard-Production";
 
     const godModeDashboard = new Dashboard(this, "GodModeDashboard", {
-      dashboardName: godModeDashboardName
+      dashboardName: godModeDashboardName,
     });
 
     godModeDashboard.addWidgets(
@@ -251,33 +261,33 @@ export class InfrastructureStack extends Stack {
           left: [
             eventbridgeConsumerLambda.metricInvocations(),
             eventbridgeProducerLambda.metricInvocations(),
-            eventbridgeS3Lambda.metricInvocations()
+            eventbridgeS3Lambda.metricInvocations(),
           ],
-          title: "Lambda Invocations"
+          title: "Lambda Invocations",
         }),
         new GraphWidget({
           left: [
             eventbridgeConsumerLambda.metricDuration(),
             eventbridgeProducerLambda.metricDuration(),
-            eventbridgeS3Lambda.metricDuration()
+            eventbridgeS3Lambda.metricDuration(),
           ],
-          title: "Lambda Duration"
+          title: "Lambda Duration",
         }),
         new GraphWidget({
           left: [
             eventbridgeConsumerLambda.metricErrors(),
             eventbridgeProducerLambda.metricErrors(),
-            eventbridgeS3Lambda.metricErrors()
+            eventbridgeS3Lambda.metricErrors(),
           ],
-          title: "Lambda Errors"
+          title: "Lambda Errors",
         }),
         new GraphWidget({
           left: [
             eventbridgeConsumerLambda.metricThrottles(),
             eventbridgeProducerLambda.metricThrottles(),
-            eventbridgeS3Lambda.metricThrottles()
+            eventbridgeS3Lambda.metricThrottles(),
           ],
-          title: "Lambda Throttles"
+          title: "Lambda Throttles",
         })
       )
     );
@@ -285,7 +295,7 @@ export class InfrastructureStack extends Stack {
     const applicationAlertsTopic = new Topic(this, "ApplicationAlertsTopic", {
       topicName: process.env.GITHUB_PR_NUMBER
         ? `ApplicationAlertsTopic-Integration-${process.env.GITHUB_PR_NUMBER}`
-        : "ApplicationAlertsTopic-Production"
+        : "ApplicationAlertsTopic-Production",
     });
 
     slackAlertingLambda.addEventSource(
@@ -299,7 +309,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeConsumerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeConsumerLambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeConsumerLambdaErrorsAlarm.addAlarmAction(
@@ -313,7 +323,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeConsumerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeConsumerLambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeConsumerLambdaThrottlesAlarm.addAlarmAction(
@@ -327,7 +337,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeProducerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeProducerLambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeProducerLambdaErrorsAlarm.addAlarmAction(
@@ -341,7 +351,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeProducerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeProducerLambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeProducerLambdaThrottlesAlarm.addAlarmAction(
@@ -355,7 +365,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeS3LambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeS3LambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeS3LambdaErrorsAlarm.addAlarmAction(
@@ -369,7 +379,7 @@ export class InfrastructureStack extends Stack {
           ? `EventbridgeS3LambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventbridgeS3LambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
-        threshold: 10
+        threshold: 10,
       });
 
     eventbridgeS3LambdaThrottlesAlarm.addAlarmAction(
