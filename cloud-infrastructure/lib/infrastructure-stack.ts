@@ -48,12 +48,6 @@ export class InfrastructureStack extends Stack {
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
     );
 
-    const certificate = Certificate.fromCertificateArn(
-      this,
-      "Certificate",
-      "arn:aws:acm:us-east-1:614517326458:certificate/31aaf78e-2abb-47af-bffd-e29b987a9d5e"
-    );
-
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
         detail: {
@@ -167,12 +161,18 @@ export class InfrastructureStack extends Stack {
 
     const apiDomainName = "api.ian.level-out.com";
 
+    const apiCertificate = Certificate.fromCertificateArn(
+      this,
+      "APICertificate",
+      "arn:aws:acm:eu-west-2:614517326458:certificate/e92d37e5-9eaa-4a66-a340-a8e136786250"
+    );
+
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName,
       },
       domainName: {
-        certificate: certificate,
+        certificate: apiCertificate,
         domainName: apiDomainName,
       },
       endpointExportName: apiName,
@@ -213,6 +213,12 @@ export class InfrastructureStack extends Stack {
       websiteIndexDocument: "index.html",
     });
 
+    const staticAppCertificate = Certificate.fromCertificateArn(
+      this,
+      "StaticAppCertificate",
+      "arn:aws:acm:us-east-1:614517326458:certificate/31aaf78e-2abb-47af-bffd-e29b987a9d5e"
+    );
+
     const staticAppDistribution = new CloudFrontWebDistribution(
       this,
       "StaticAppDistribution",
@@ -247,7 +253,9 @@ export class InfrastructureStack extends Stack {
             s3OriginSource: { s3BucketSource: staticAppBucket },
           },
         ],
-        viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate),
+        viewerCertificate: ViewerCertificate.fromAcmCertificate(
+          staticAppCertificate
+        ),
       }
     );
 
