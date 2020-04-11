@@ -1,7 +1,7 @@
 import {
   BuildSpec,
   LinuxBuildImage,
-  PipelineProject
+  PipelineProject,
 } from "@aws-cdk/aws-codebuild";
 import { Artifact, Pipeline } from "@aws-cdk/aws-codepipeline";
 import {
@@ -10,7 +10,7 @@ import {
   CodeBuildActionType,
   GitHubSourceAction,
   GitHubTrigger,
-  S3DeployAction
+  S3DeployAction,
 } from "@aws-cdk/aws-codepipeline-actions";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
@@ -18,7 +18,7 @@ import {
   CfnParametersCode,
   Code,
   Function,
-  Runtime
+  Runtime,
 } from "@aws-cdk/aws-lambda";
 import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
@@ -47,7 +47,7 @@ export class PipelineStack extends Stack {
       oauthToken: sourceOAuth,
       output: sourceOutput,
       branch: process.env.GITHUB_HEAD_REF,
-      trigger: GitHubTrigger.WEBHOOK
+      trigger: GitHubTrigger.WEBHOOK,
     });
 
     const infrastructureStackName = `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`;
@@ -59,29 +59,29 @@ export class PipelineStack extends Stack {
           "secondary-artifacts": {
             InfrastructureBuildOutput: {
               "base-directory": "./cloud-infrastructure/cdk.out",
-              files: [`${infrastructureStackName}.template.json`]
+              files: [`${infrastructureStackName}.template.json`],
             },
             ECLBO: {
-              "base-directory": "./eventbridge-consumer/lib",
-              files: ["consumer.js"]
+              "base-directory": "./eventbridge-consumer/bin",
+              files: ["consumer.js"],
             },
             EPLBO: {
-              "base-directory": "./eventbridge-producer/lib",
-              files: ["producer.js"]
+              "base-directory": "./eventbridge-producer/bin",
+              files: ["producer.js"],
             },
             ESLBO: {
-              "base-directory": "./eventbridge-s3/lib",
-              files: ["consumer.js"]
+              "base-directory": "./eventbridge-s3/bin",
+              files: ["consumer.js"],
             },
             SALBO: {
-              "base-directory": "./slack-alerting/lib",
-              files: ["alerting.js"]
+              "base-directory": "./slack-alerting/bin",
+              files: ["alerting.js"],
             },
             DepsLayer: {
               "base-directory": "./dependency-layer",
-              files: ["**/*"]
-            }
-          }
+              files: ["**/*"],
+            },
+          },
         },
         phases: {
           install: { commands: ["npm install --global yarn", "yarn install"] },
@@ -89,14 +89,14 @@ export class PipelineStack extends Stack {
             commands: [
               "yarn build",
               `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
-              "yarn layer"
-            ]
-          }
-        }
+              "yarn layer",
+            ],
+          },
+        },
       }),
       environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
-      }
+        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
+      },
     });
 
     const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
@@ -120,9 +120,9 @@ export class PipelineStack extends Stack {
         eventbridgeProducerLambdaBuildOutput,
         eventbridgeS3LambdaBuildOutput,
         slackAlertingLambdaBuildOutput,
-        dependencyLayerBuildOutput
+        dependencyLayerBuildOutput,
       ],
-      project: microserviceBuild
+      project: microserviceBuild,
     });
 
     const staticAppBuild = new PipelineProject(this, "StaticAppBuild", {
@@ -131,18 +131,18 @@ export class PipelineStack extends Stack {
         artifacts: {
           "base-directory": "./static-app/build",
           files: ["**/*"],
-          name: "StaticAppBucket"
+          name: "StaticAppBucket",
         },
         phases: {
           install: { commands: ["npm install --global yarn", "yarn install"] },
           build: {
-            commands: ["yarn --cwd static-app build"]
-          }
-        }
+            commands: ["yarn --cwd static-app build"],
+          },
+        },
       }),
       environment: {
-        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
-      }
+        buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
+      },
     });
 
     const staticAppBuildOutput = new Artifact("StaticAppBucket");
@@ -151,7 +151,7 @@ export class PipelineStack extends Stack {
       actionName: "StaticApp_Build",
       input: sourceOutput,
       outputs: [staticAppBuildOutput],
-      project: staticAppBuild
+      project: staticAppBuild,
     });
 
     const workspaceIntegrationTest = new PipelineProject(
@@ -162,16 +162,16 @@ export class PipelineStack extends Stack {
           version: "0.2",
           phases: {
             install: {
-              commands: ["npm install --global yarn", "yarn install"]
+              commands: ["npm install --global yarn", "yarn install"],
             },
             build: {
-              commands: `GITHUB_HEAD_REF=${process.env.GITHUB_HEAD_REF} GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test`
-            }
-          }
+              commands: `GITHUB_HEAD_REF=${process.env.GITHUB_HEAD_REF} GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test`,
+            },
+          },
         }),
         environment: {
-          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1
-        }
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
+        },
       }
     );
 
@@ -181,9 +181,9 @@ export class PipelineStack extends Stack {
           `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`,
           `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeProducer-Integration-${process.env.GITHUB_PR_NUMBER}`,
           `arn:aws:lambda:eu-west-2:614517326458:function:EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`,
-          `arn:aws:lambda:eu-west-2:614517326458:function:SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
+          `arn:aws:lambda:eu-west-2:614517326458:function:SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`,
         ],
-        actions: ["lambda:InvokeFunction"]
+        actions: ["lambda:InvokeFunction"],
       })
     );
 
@@ -191,7 +191,7 @@ export class PipelineStack extends Stack {
       actionName: "Workspace_Integration_Test",
       project: workspaceIntegrationTest,
       input: sourceOutput,
-      type: CodeBuildActionType.TEST
+      type: CodeBuildActionType.TEST,
     });
 
     const deployInfrastructureAction = new CloudFormationCreateUpdateStackAction(
@@ -217,15 +217,15 @@ export class PipelineStack extends Stack {
           ),
           ...props?.dependencyLayerLambdaCode.assign(
             dependencyLayerBuildOutput.s3Location
-          )
+          ),
         },
         extraInputs: [
           eventbridgeConsumerLambdaBuildOutput,
           eventbridgeProducerLambdaBuildOutput,
           eventbridgeS3LambdaBuildOutput,
           slackAlertingLambdaBuildOutput,
-          dependencyLayerBuildOutput
-        ]
+          dependencyLayerBuildOutput,
+        ],
       }
     );
 
@@ -237,14 +237,14 @@ export class PipelineStack extends Stack {
         `static-app-${process.env.GITHUB_PR_NUMBER}`
       ),
       input: staticAppBuildOutput,
-      runOrder: 2
+      runOrder: 2,
     });
 
     const pipelineName = `DeploymentPipeline-Integration-${process.env.GITHUB_PR_NUMBER}`;
 
     const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
       bucketName: pipelineName.toLowerCase(),
-      encryption: BucketEncryption.KMS_MANAGED
+      encryption: BucketEncryption.KMS_MANAGED,
     });
 
     const deploymentPipeline = new Pipeline(
@@ -256,40 +256,40 @@ export class PipelineStack extends Stack {
         stages: [
           {
             stageName: "Source",
-            actions: [sourceAction]
+            actions: [sourceAction],
           },
           {
             stageName: "Build",
-            actions: [microserviceBuildAction, staticAppBuildAction]
+            actions: [microserviceBuildAction, staticAppBuildAction],
           },
           {
             stageName: "Deploy",
-            actions: [deployInfrastructureAction, deployStaticAppAction]
+            actions: [deployInfrastructureAction, deployStaticAppAction],
           },
           {
             stageName: "Test",
-            actions: [integrationTestAction]
-          }
-        ]
+            actions: [integrationTestAction],
+          },
+        ],
       }
     );
 
     const pipelineStatusLambda = new Function(this, "PipelineStatusLambda", {
-      code: Code.fromAsset("../pipeline-status/lib"),
+      code: Code.fromAsset("../pipeline-status/bin"),
       environment: {
         AWS_SECRETS_GITHUB: "dev/Tread/GitHubToken",
         GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || "",
-        GITHUB_PR_NUMBER: process.env.GITHUB_PR_NUMBER || ""
+        GITHUB_PR_NUMBER: process.env.GITHUB_PR_NUMBER || "",
       },
       functionName: `PipelineStatus-Integration-${process.env.GITHUB_PR_NUMBER}`,
       handler: "status.handler",
-      runtime: Runtime.NODEJS_12_X
+      runtime: Runtime.NODEJS_12_X,
     });
 
     pipelineStatusLambda.addToRolePolicy(
       new PolicyStatement({
         resources: [deploymentPipeline.pipelineArn],
-        actions: ["codepipeline:GetPipelineExecution"]
+        actions: ["codepipeline:GetPipelineExecution"],
       })
     );
 
@@ -302,7 +302,7 @@ export class PipelineStack extends Stack {
     githubSecret.grantRead(pipelineStatusLambda);
 
     deploymentPipeline.onStateChange("DeploymentPipelineStateChangeHandler", {
-      target: new LambdaFunction(pipelineStatusLambda)
+      target: new LambdaFunction(pipelineStatusLambda),
     });
   }
 }
