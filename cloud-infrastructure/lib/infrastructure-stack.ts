@@ -51,7 +51,7 @@ export class InfrastructureStack extends Stack {
     const certificate = Certificate.fromCertificateArn(
       this,
       "Certificate",
-      "arn:aws:acm:eu-west-2:614517326458:certificate/d1ca0e70-927d-4803-ae1b-0363eb1e549a"
+      "arn:aws:acm:eu-west-2:614517326458:certificate/fb958be7-0e45-48ae-8dfc-a1a8caff2d8c"
     );
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
