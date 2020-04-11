@@ -235,7 +235,7 @@ export class InfrastructureStack extends Stack {
       this,
       "StaticAppHostedZone",
       {
-        hostedZoneId: " Z0598212RUKTJD8647W3",
+        hostedZoneId: "Z0598212RUKTJD8647W3",
         zoneName: "ian.level-out.com",
       }
     );
