@@ -21,7 +21,7 @@ import {
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
-import { CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
+import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
@@ -165,14 +165,34 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
+    const apiDomainName = "api.ian.level-out.com";
+
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName,
+      },
+      domainName: {
+        certificate: certificate,
+        domainName: apiDomainName,
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
       proxy: false,
       restApiName: apiName,
+    });
+
+    const apiHostedZone = HostedZone.fromHostedZoneAttributes(
+      this,
+      "APIHostedZone",
+      {
+        hostedZoneId: "Z0598212RUKTJD8647W3",
+        zoneName: apiDomainName,
+      }
+    );
+
+    new ARecord(this, "APIGatewayAliasRecord", {
+      target: RecordTarget.fromAlias(new ApiGateway(api)),
+      zone: apiHostedZone,
     });
 
     const eventbridgeProducerResource = api.root.addResource(
