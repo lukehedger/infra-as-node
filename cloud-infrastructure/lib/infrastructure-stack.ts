@@ -12,6 +12,7 @@ import {
   CfnParametersCode,
   Code,
   Function,
+  LayerVersion,
   Runtime,
   Tracing,
 } from "@aws-cdk/aws-lambda";
@@ -26,9 +27,16 @@ import { BlockPublicAccess, Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
 import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
-import { Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
+import {
+  CfnParameter,
+  Construct,
+  RemovalPolicy,
+  Stack,
+  StackProps,
+} from "@aws-cdk/core";
 
 export class InfrastructureStack extends Stack {
+  public readonly dependencyLayerLambdaCode: CfnParametersCode;
   public readonly eventbridgeConsumerLambdaCode: CfnParametersCode;
   public readonly eventbridgeProducerLambdaCode: CfnParametersCode;
   public readonly eventbridgeS3LambdaCode: CfnParametersCode;
@@ -37,16 +45,41 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    this.eventbridgeConsumerLambdaCode = Code.cfnParameters();
-    this.eventbridgeProducerLambdaCode = Code.cfnParameters();
-    this.eventbridgeS3LambdaCode = Code.cfnParameters();
-    this.slackAlertingLambdaCode = Code.cfnParameters();
+    this.dependencyLayerLambdaCode = Code.cfnParameters({
+      bucketNameParam: new CfnParameter(this, "BA"),
+      objectKeyParam: new CfnParameter(this, "OA"),
+    });
+
+    this.eventbridgeConsumerLambdaCode = Code.cfnParameters({
+      bucketNameParam: new CfnParameter(this, "BB"),
+      objectKeyParam: new CfnParameter(this, "OB"),
+    });
+
+    this.eventbridgeProducerLambdaCode = Code.cfnParameters({
+      bucketNameParam: new CfnParameter(this, "BC"),
+      objectKeyParam: new CfnParameter(this, "OC"),
+    });
+
+    this.eventbridgeS3LambdaCode = Code.cfnParameters({
+      bucketNameParam: new CfnParameter(this, "BD"),
+      objectKeyParam: new CfnParameter(this, "OD"),
+    });
+
+    this.slackAlertingLambdaCode = Code.cfnParameters({
+      bucketNameParam: new CfnParameter(this, "BE"),
+      objectKeyParam: new CfnParameter(this, "OE"),
+    });
 
     const SlackAPISecret = Secret.fromSecretArn(
       this,
       "SlackAPISecret",
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
     );
+
+    const dependencyLayer = new LayerVersion(this, "DependencyLayer", {
+      code: this.dependencyLayerLambdaCode,
+      compatibleRuntimes: [Runtime.NODEJS_12_X],
+    });
 
     const eventbridgeConsumerRule = new Rule(this, "EventBridgeConsumerRule", {
       eventPattern: {
@@ -79,6 +112,7 @@ export class InfrastructureStack extends Stack {
           ? `EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventBridgeConsumer-Production",
         handler: "consumer.handler",
+        layers: [dependencyLayer],
         onFailure: new SqsDestination(eventBridgeConsumerFailureQueue),
         onSuccess: new SnsDestination(eventBridgeConsumerSuccessTopic),
         runtime: Runtime.NODEJS_12_X,
@@ -113,6 +147,7 @@ export class InfrastructureStack extends Stack {
         ? `EventBridgeS3-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "EventBridgeS3-Production",
       handler: "consumer.handler",
+      layers: [dependencyLayer],
       onFailure: new SqsDestination(eventLogFailureQueue),
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE,
@@ -131,6 +166,7 @@ export class InfrastructureStack extends Stack {
           ? `EventBridgeProducer-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventBridgeProducer-Production",
         handler: "producer.handler",
+        layers: [dependencyLayer],
         runtime: Runtime.NODEJS_12_X,
         tracing: Tracing.ACTIVE,
       }
@@ -147,6 +183,7 @@ export class InfrastructureStack extends Stack {
         ? `SlackAlerting-Integration-${process.env.GITHUB_PR_NUMBER}`
         : "SlackAlerting-Production",
       handler: "alerting.handler",
+      layers: [dependencyLayer],
       runtime: Runtime.NODEJS_12_X,
       tracing: Tracing.ACTIVE,
     });
@@ -326,10 +363,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeConsumerLambdaErrorsAlarm = eventbridgeConsumerLambda
       .metricErrors()
-      .createAlarm(this, "EventbridgeConsumerLambdaErrorsAlarm", {
+      .createAlarm(this, "EventBridgeConsumerLambdaErrorsAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeConsumerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeConsumerLambdaErrorsAlarm-Production",
+          ? `EventBridgeConsumerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeConsumerLambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });
@@ -340,10 +377,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeConsumerLambdaThrottlesAlarm = eventbridgeConsumerLambda
       .metricThrottles()
-      .createAlarm(this, "EventbridgeConsumerLambdaThrottlesAlarm", {
+      .createAlarm(this, "EventBridgeConsumerLambdaThrottlesAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeConsumerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeConsumerLambdaThrottlesAlarm-Production",
+          ? `EventBridgeConsumerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeConsumerLambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });
@@ -354,10 +391,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeProducerLambdaErrorsAlarm = eventbridgeProducerLambda
       .metricErrors()
-      .createAlarm(this, "EventbridgeProducerLambdaErrorsAlarm", {
+      .createAlarm(this, "EventBridgeProducerLambdaErrorsAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeProducerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeProducerLambdaErrorsAlarm-Production",
+          ? `EventBridgeProducerLambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeProducerLambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });
@@ -368,10 +405,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeProducerLambdaThrottlesAlarm = eventbridgeProducerLambda
       .metricThrottles()
-      .createAlarm(this, "EventbridgeProducerLambdaThrottlesAlarm", {
+      .createAlarm(this, "EventBridgeProducerLambdaThrottlesAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeProducerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeProducerLambdaThrottlesAlarm-Production",
+          ? `EventBridgeProducerLambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeProducerLambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });
@@ -382,10 +419,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeS3LambdaErrorsAlarm = eventbridgeS3Lambda
       .metricErrors()
-      .createAlarm(this, "EventbridgeS3LambdaErrorsAlarm", {
+      .createAlarm(this, "EventBridgeS3LambdaErrorsAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeS3LambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeS3LambdaErrorsAlarm-Production",
+          ? `EventBridgeS3LambdaErrorsAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeS3LambdaErrorsAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });
@@ -396,10 +433,10 @@ export class InfrastructureStack extends Stack {
 
     const eventbridgeS3LambdaThrottlesAlarm = eventbridgeS3Lambda
       .metricThrottles()
-      .createAlarm(this, "EventbridgeS3LambdaThrottlesAlarm", {
+      .createAlarm(this, "EventBridgeS3LambdaThrottlesAlarm", {
         alarmName: process.env.GITHUB_PR_NUMBER
-          ? `EventbridgeS3LambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
-          : "EventbridgeS3LambdaThrottlesAlarm-Production",
+          ? `EventBridgeS3LambdaThrottlesAlarm-Integration-${process.env.GITHUB_PR_NUMBER}`
+          : "EventBridgeS3LambdaThrottlesAlarm-Production",
         evaluationPeriods: 2,
         threshold: 10,
       });

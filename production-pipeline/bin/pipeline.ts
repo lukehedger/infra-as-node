@@ -8,6 +8,7 @@ const app = new App();
 const infrastructureStack = new InfrastructureStack(app, "InfrastructureStack");
 
 new PipelineStack(app, "PipelineStack", {
+  dependencyLayerLambdaCode: infrastructureStack.dependencyLayerLambdaCode,
   eventbridgeConsumerLambdaCode:
     infrastructureStack.eventbridgeConsumerLambdaCode,
   eventbridgeProducerLambdaCode:

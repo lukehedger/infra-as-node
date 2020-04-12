@@ -11,6 +11,7 @@ const infrastructureStack = new InfrastructureStack(
 );
 
 new PipelineStack(app, `PipelineStack-${process.env.GITHUB_PR_NUMBER}`, {
+  dependencyLayerLambdaCode: infrastructureStack.dependencyLayerLambdaCode,
   eventbridgeConsumerLambdaCode:
     infrastructureStack.eventbridgeConsumerLambdaCode,
   eventbridgeProducerLambdaCode:

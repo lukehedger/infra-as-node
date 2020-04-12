@@ -2,24 +2,19 @@
   "name": "eventbridge-producer",
   "private": true,
   "version": "0.0.0",
-  "main": "lib/producer.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "main": "bin/producer.js",
   "scripts": {
-    "build": "rollup --config",
-    "test": "exit 0",
-    "watch": "rollup --config --watch"
+    "build": "tsc",
+    "test": "jest"
   },
   "devDependencies": {
-    "@types/aws-lambda": "8.10.34",
-    "rollup": "1.26.2",
-    "rollup-plugin-commonjs": "10.1.0",
-    "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-terser": "5.1.2",
-    "rollup-plugin-typescript": "1.0.1",
-    "tslib": "1.10.0",
-    "typescript": "3.7.2"
+    "@aws-sdk/client-lambda": "1.0.0-beta.3",
+    "@types/aws-lambda": "8.10.47",
+    "@types/jest": "25.1.5",
+    "@types/node": "13.11.0",
+    "jest": "25.3.0",
+    "ts-jest": "25.3.1",
+    "typescript": "3.8.2"
   },
   "dependencies": {
     "@aws-sdk/client-eventbridge-node": "0.1.0-preview.2",
