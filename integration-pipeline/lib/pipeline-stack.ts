@@ -20,9 +20,15 @@ import {
   Function,
   Runtime,
 } from "@aws-cdk/aws-lambda";
-import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
+import { BlockPublicAccess, Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
-import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
+import {
+  Construct,
+  RemovalPolicy,
+  SecretValue,
+  Stack,
+  StackProps,
+} from "@aws-cdk/core";
 
 export interface PipelineStackProps extends StackProps {
   readonly dependencyLayerLambdaCode: CfnParametersCode;
@@ -76,7 +82,7 @@ export class PipelineStack extends Stack {
             },
             build: {
               commands: [
-                "yarn build",
+                "yarn --cwd cloud-infrastructure build",
                 `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
                 "yarn layer",
               ],
@@ -273,8 +279,10 @@ export class PipelineStack extends Stack {
     const pipelineName = `DeploymentPipeline-Integration-${process.env.GITHUB_PR_NUMBER}`;
 
     const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       bucketName: pipelineName.toLowerCase(),
       encryption: BucketEncryption.KMS_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const deploymentPipeline = new Pipeline(

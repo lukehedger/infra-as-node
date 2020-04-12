@@ -220,11 +220,10 @@ export class InfrastructureStack extends Stack {
       restApiName: apiName,
     });
 
-    const hostedZone = HostedZone.fromHostedZoneId(
-      this,
-      "HostedZone",
-      "Z0598212RUKTJD8647W3"
-    );
+    const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
+      hostedZoneId: "Z0598212RUKTJD8647W3",
+      zoneName: "ian.level-out.com",
+    });
 
     new ARecord(this, "APIGatewayAliasRecord", {
       target: RecordTarget.fromAlias(new ApiGateway(api)),

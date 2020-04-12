@@ -13,8 +13,14 @@ import {
   S3DeployAction,
 } from "@aws-cdk/aws-codepipeline-actions";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
-import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
-import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core";
+import { BlockPublicAccess, Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
+import {
+  Construct,
+  RemovalPolicy,
+  SecretValue,
+  Stack,
+  StackProps,
+} from "@aws-cdk/core";
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 
 export interface PipelineStackProps extends StackProps {
@@ -43,15 +49,59 @@ export class PipelineStack extends Stack {
       trigger: GitHubTrigger.WEBHOOK,
     });
 
+    const infrastructureBuild = new PipelineProject(
+      this,
+      "InfrastructureBuild",
+      {
+        buildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          artifacts: {
+            "secondary-artifacts": {
+              InfrastructureBuildOutput: {
+                "base-directory": "./cloud-infrastructure/cdk.out",
+                files: ["InfrastructureStack.template.json"],
+              },
+              DepsLayer: {
+                "base-directory": "./dependency-layer",
+                files: ["**/*"],
+              },
+            },
+          },
+          phases: {
+            install: {
+              commands: ["npm install --global yarn", "yarn install"],
+            },
+            build: {
+              commands: [
+                "yarn --cwd cloud-infrastructure build",
+                "yarn --cwd cloud-infrastructure synth",
+                "yarn layer",
+              ],
+            },
+          },
+        }),
+        environment: {
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
+        },
+      }
+    );
+
+    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
+
+    const dependencyLayerBuildOutput = new Artifact("DepsLayer");
+
+    const infrastructureBuildAction = new CodeBuildAction({
+      actionName: "Infrastructure_Build",
+      input: sourceOutput,
+      outputs: [infrastructureBuildOutput, dependencyLayerBuildOutput],
+      project: infrastructureBuild,
+    });
+
     const microserviceBuild = new PipelineProject(this, "MicroserviceBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         artifacts: {
           "secondary-artifacts": {
-            InfrastructureBuildOutput: {
-              "base-directory": "./cloud-infrastructure/cdk.out",
-              files: ["InfrastructureStack.template.json"],
-            },
             ECLBO: {
               "base-directory": "./eventbridge-consumer/bin",
               files: ["consumer.js"],
@@ -68,10 +118,6 @@ export class PipelineStack extends Stack {
               "base-directory": "./slack-alerting/bin",
               files: ["alerting.js"],
             },
-            DepsLayer: {
-              "base-directory": "./dependency-layer",
-              files: ["**/*"],
-            },
           },
         },
         phases: {
@@ -79,7 +125,7 @@ export class PipelineStack extends Stack {
             commands: ["npm install --global yarn", "yarn install"],
           },
           build: {
-            commands: ["yarn build", "yarn --cwd cloud-infrastructure synth"],
+            commands: ["yarn build"],
           },
         },
       }),
@@ -87,8 +133,6 @@ export class PipelineStack extends Stack {
         buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
       },
     });
-
-    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
 
     const eventbridgeConsumerLambdaBuildOutput = new Artifact("ECLBO");
 
@@ -98,18 +142,14 @@ export class PipelineStack extends Stack {
 
     const slackAlertingLambdaBuildOutput = new Artifact("SALBO");
 
-    const dependencyLayerBuildOutput = new Artifact("DepsLayer");
-
     const microserviceBuildAction = new CodeBuildAction({
       actionName: "Microservice_Build",
       input: sourceOutput,
       outputs: [
-        infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
         eventbridgeProducerLambdaBuildOutput,
         eventbridgeS3LambdaBuildOutput,
         slackAlertingLambdaBuildOutput,
-        dependencyLayerBuildOutput,
       ],
       project: microserviceBuild,
     });
@@ -230,8 +270,10 @@ export class PipelineStack extends Stack {
     const pipelineName = "DeploymentPipeline-Production";
 
     const deploymentPipelineArtifactBucket = new Bucket(this, pipelineName, {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       bucketName: pipelineName.toLowerCase(),
       encryption: BucketEncryption.KMS_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     new Pipeline(this, "ProductionDeploymentPipeline", {
@@ -244,7 +286,11 @@ export class PipelineStack extends Stack {
         },
         {
           stageName: "Build",
-          actions: [microserviceBuildAction, staticAppBuildAction],
+          actions: [
+            infrastructureBuildAction,
+            microserviceBuildAction,
+            staticAppBuildAction,
+          ],
         },
         {
           stageName: "Deploy",
