@@ -183,18 +183,15 @@ export class InfrastructureStack extends Stack {
       restApiName: apiName,
     });
 
-    const apiHostedZone = HostedZone.fromHostedZoneAttributes(
+    const hostedZone = HostedZone.fromHostedZoneId(
       this,
-      "APIHostedZone",
-      {
-        hostedZoneId: "Z0598212RUKTJD8647W3",
-        zoneName: apiDomainName,
-      }
+      "HostedZone",
+      "Z0598212RUKTJD8647W3"
     );
 
     new ARecord(this, "APIGatewayAliasRecord", {
       target: RecordTarget.fromAlias(new ApiGateway(api)),
-      zone: apiHostedZone,
+      zone: hostedZone,
     });
 
     const eventbridgeProducerResource = api.root.addResource(
@@ -261,20 +258,11 @@ export class InfrastructureStack extends Stack {
       }
     );
 
-    const staticAppHostedZone = HostedZone.fromHostedZoneAttributes(
-      this,
-      "StaticAppHostedZone",
-      {
-        hostedZoneId: "Z0598212RUKTJD8647W3",
-        zoneName: "ian.level-out.com",
-      }
-    );
-
     new ARecord(this, "StaticAppDistributionAliasRecord", {
       target: RecordTarget.fromAlias(
         new CloudFrontTarget(staticAppDistribution)
       ),
-      zone: staticAppHostedZone,
+      zone: hostedZone,
     });
 
     const godModeDashboardName = process.env.GITHUB_PR_NUMBER
