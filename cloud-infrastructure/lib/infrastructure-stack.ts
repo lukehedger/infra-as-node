@@ -22,7 +22,7 @@ import {
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
 import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
-import { Bucket } from "@aws-cdk/aws-s3";
+import { BlockPublicAccess, Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
 import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
@@ -95,7 +95,9 @@ export class InfrastructureStack extends Stack {
       : "EventLog-Production";
 
     const eventLogBucket = new Bucket(this, eventLogBucketName, {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       bucketName: eventLogBucketName.toLowerCase(),
+      removalPolicy: RemovalPolicy.RETAIN,
     });
 
     const eventLogFailureQueue = new Queue(this, "EventLogFailureQueue", {
