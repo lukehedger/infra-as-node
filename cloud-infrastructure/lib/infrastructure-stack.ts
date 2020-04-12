@@ -1,5 +1,9 @@
 import { LambdaRestApi } from "@aws-cdk/aws-apigateway";
-import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
+import { Certificate } from "@aws-cdk/aws-certificatemanager";
+import {
+  CloudFrontWebDistribution,
+  ViewerCertificate,
+} from "@aws-cdk/aws-cloudfront";
 import { Dashboard, GraphWidget, Row } from "@aws-cdk/aws-cloudwatch";
 import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
 import { EventBus, Rule } from "@aws-cdk/aws-events";
@@ -17,7 +21,9 @@ import {
   SqsDestination,
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
-import { Bucket } from "@aws-cdk/aws-s3";
+import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
+import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
+import { BlockPublicAccess, Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
 import { Queue, QueueEncryption } from "@aws-cdk/aws-sqs";
@@ -123,7 +129,9 @@ export class InfrastructureStack extends Stack {
       : "EventLog-Production";
 
     const eventLogBucket = new Bucket(this, eventLogBucketName, {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       bucketName: eventLogBucketName.toLowerCase(),
+      removalPolicy: RemovalPolicy.RETAIN,
     });
 
     const eventLogFailureQueue = new Queue(this, "EventLogFailureQueue", {
@@ -190,14 +198,37 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
+    const apiDomainName = "api.ian.level-out.com";
+
+    const apiCertificate = Certificate.fromCertificateArn(
+      this,
+      "APICertificate",
+      "arn:aws:acm:eu-west-2:614517326458:certificate/e92d37e5-9eaa-4a66-a340-a8e136786250"
+    );
+
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName,
+      },
+      domainName: {
+        certificate: apiCertificate,
+        domainName: apiDomainName,
       },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
       proxy: false,
       restApiName: apiName,
+    });
+
+    const hostedZone = HostedZone.fromHostedZoneId(
+      this,
+      "HostedZone",
+      "Z0598212RUKTJD8647W3"
+    );
+
+    new ARecord(this, "APIGatewayAliasRecord", {
+      target: RecordTarget.fromAlias(new ApiGateway(api)),
+      zone: hostedZone,
     });
 
     const eventbridgeProducerResource = api.root.addResource(
@@ -218,13 +249,61 @@ export class InfrastructureStack extends Stack {
       websiteIndexDocument: "index.html",
     });
 
-    new CloudFrontWebDistribution(this, "StaticAppDistribution", {
-      originConfigs: [
-        {
-          behaviors: [{ isDefaultBehavior: true }],
-          s3OriginSource: { s3BucketSource: staticAppBucket },
-        },
-      ],
+    const staticAppCertificate = Certificate.fromCertificateArn(
+      this,
+      "StaticAppCertificate",
+      "arn:aws:acm:us-east-1:614517326458:certificate/31aaf78e-2abb-47af-bffd-e29b987a9d5e"
+    );
+
+    const staticAppDistributionName = process.env.GITHUB_PR_NUMBER
+      ? `StaticAppDistribution-Integration-${process.env.GITHUB_PR_NUMBER}`
+      : "StaticAppDistribution-Production";
+
+    const staticAppDistribution = new CloudFrontWebDistribution(
+      this,
+      staticAppDistributionName,
+      {
+        errorConfigurations: [
+          {
+            errorCachingMinTtl: 0,
+            errorCode: 403,
+            responseCode: 200,
+            responsePagePath: "/index.html",
+          },
+          {
+            errorCachingMinTtl: 0,
+            errorCode: 404,
+            responseCode: 200,
+            responsePagePath: "/index.html",
+          },
+        ],
+        originConfigs: [
+          {
+            behaviors: [{ isDefaultBehavior: true }],
+            originHeaders: {
+              "Content-Security-Policy":
+                "default-src https: 'unsafe-inline'; img-src https: data: blob:; object-src 'none'; frame-ancestors 'self';",
+              "Strict-Transport-Security":
+                "max-age=63072000; includeSubDomains; preload",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "X-Content-Type-Options": "nosniff",
+              "X-XSS-Protection": "1; mode=block",
+            },
+            s3OriginSource: { s3BucketSource: staticAppBucket },
+          },
+        ],
+        viewerCertificate: ViewerCertificate.fromAcmCertificate(
+          staticAppCertificate
+        ),
+      }
+    );
+
+    new ARecord(this, "StaticAppDistributionAliasRecord", {
+      target: RecordTarget.fromAlias(
+        new CloudFrontTarget(staticAppDistribution)
+      ),
+      zone: hostedZone,
     });
 
     const godModeDashboardName = process.env.GITHUB_PR_NUMBER
