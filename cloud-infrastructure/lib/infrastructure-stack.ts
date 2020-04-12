@@ -218,9 +218,13 @@ export class InfrastructureStack extends Stack {
       "arn:aws:acm:us-east-1:614517326458:certificate/31aaf78e-2abb-47af-bffd-e29b987a9d5e"
     );
 
+    const staticAppDistributionName = process.env.GITHUB_PR_NUMBER
+      ? `StaticAppDistribution-Integration-${process.env.GITHUB_PR_NUMBER}`
+      : "StaticAppDistribution-Production";
+
     const staticAppDistribution = new CloudFrontWebDistribution(
       this,
-      "StaticAppDistribution",
+      staticAppDistributionName,
       {
         errorConfigurations: [
           {
