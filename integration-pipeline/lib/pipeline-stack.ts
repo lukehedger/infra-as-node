@@ -52,45 +52,81 @@ export class PipelineStack extends Stack {
 
     const infrastructureStackName = `InfrastructureStack-${process.env.GITHUB_PR_NUMBER}`;
 
+    const infrastructureBuild = new PipelineProject(
+      this,
+      "InfrastructureeBuild",
+      {
+        buildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          artifacts: {
+            "secondary-artifacts": {
+              InfrastructureBuildOutput: {
+                "base-directory": "./cloud-infrastructure/cdk.out",
+                files: [`${infrastructureStackName}.template.json`],
+              },
+              DL: {
+                "base-directory": "./dependency-layer",
+                files: ["**/*"],
+              },
+            },
+          },
+          phases: {
+            install: {
+              commands: ["npm install --global yarn", "yarn install"],
+            },
+            build: {
+              commands: [
+                "yarn build",
+                `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
+                "yarn layer",
+              ],
+            },
+          },
+        }),
+        environment: {
+          buildImage: LinuxBuildImage.UBUNTU_14_04_NODEJS_10_14_1,
+        },
+      }
+    );
+
+    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
+
+    const dependencyLayerBuildOutput = new Artifact("DL");
+
+    const infrastructureBuildAction = new CodeBuildAction({
+      actionName: "Infrastructure_Build",
+      input: sourceOutput,
+      outputs: [infrastructureBuildOutput, dependencyLayerBuildOutput],
+      project: infrastructureBuild,
+    });
+
     const microserviceBuild = new PipelineProject(this, "MicroserviceBuild", {
       buildSpec: BuildSpec.fromObject({
         version: "0.2",
         artifacts: {
           "secondary-artifacts": {
-            InfrastructureBuildOutput: {
-              "base-directory": "./cloud-infrastructure/cdk.out",
-              files: [`${infrastructureStackName}.template.json`],
-            },
-            ECLBO: {
+            EC: {
               "base-directory": "./eventbridge-consumer/bin",
               files: ["consumer.js"],
             },
-            EPLBO: {
+            EP: {
               "base-directory": "./eventbridge-producer/bin",
               files: ["producer.js"],
             },
-            ESLBO: {
+            ES: {
               "base-directory": "./eventbridge-s3/bin",
               files: ["consumer.js"],
             },
-            SALBO: {
+            SA: {
               "base-directory": "./slack-alerting/bin",
               files: ["alerting.js"],
-            },
-            DepsLayer: {
-              "base-directory": "./dependency-layer",
-              files: ["**/*"],
             },
           },
         },
         phases: {
           install: { commands: ["npm install --global yarn", "yarn install"] },
           build: {
-            commands: [
-              "yarn build",
-              `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
-              "yarn layer",
-            ],
+            commands: ["yarn build"],
           },
         },
       }),
@@ -99,28 +135,22 @@ export class PipelineStack extends Stack {
       },
     });
 
-    const infrastructureBuildOutput = new Artifact("InfrastructureBuildOutput");
+    const eventbridgeConsumerLambdaBuildOutput = new Artifact("EC");
 
-    const eventbridgeConsumerLambdaBuildOutput = new Artifact("ECLBO");
+    const eventbridgeProducerLambdaBuildOutput = new Artifact("EP");
 
-    const eventbridgeProducerLambdaBuildOutput = new Artifact("EPLBO");
+    const eventbridgeS3LambdaBuildOutput = new Artifact("ES");
 
-    const eventbridgeS3LambdaBuildOutput = new Artifact("ESLBO");
-
-    const slackAlertingLambdaBuildOutput = new Artifact("SALBO");
-
-    const dependencyLayerBuildOutput = new Artifact("DepsLayer");
+    const slackAlertingLambdaBuildOutput = new Artifact("SA");
 
     const microserviceBuildAction = new CodeBuildAction({
       actionName: "Microservice_Build",
       input: sourceOutput,
       outputs: [
-        infrastructureBuildOutput,
         eventbridgeConsumerLambdaBuildOutput,
         eventbridgeProducerLambdaBuildOutput,
         eventbridgeS3LambdaBuildOutput,
         slackAlertingLambdaBuildOutput,
-        dependencyLayerBuildOutput,
       ],
       project: microserviceBuild,
     });
@@ -260,7 +290,11 @@ export class PipelineStack extends Stack {
           },
           {
             stageName: "Build",
-            actions: [microserviceBuildAction, staticAppBuildAction],
+            actions: [
+              infrastructureBuildAction,
+              microserviceBuildAction,
+              staticAppBuildAction,
+            ],
           },
           {
             stageName: "Deploy",
