@@ -2,10 +2,10 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3-node";
 import { Handler } from "aws-lambda";
 
 const s3 = new S3Client({
-  region: "eu-west-2"
+  region: "eu-west-2",
 });
 
-export const handler: Handler = async event => {
+export const handler: Handler = async (event) => {
   try {
     const { BUCKET_NAME } = process.env;
 
@@ -14,11 +14,11 @@ export const handler: Handler = async event => {
     }
 
     const putObjectCommand = new PutObjectCommand({
-      ACL: "public-read",
+      ACL: "private",
       Body: JSON.stringify(event),
       Bucket: BUCKET_NAME,
       ContentType: "application/json",
-      Key: event.detail.correlationID
+      Key: event.detail.correlationID,
     });
 
     await s3.send(putObjectCommand);
@@ -29,8 +29,8 @@ export const handler: Handler = async event => {
         level: "INFO",
         message: "Processed event",
         meta: {
-          service: "eventbridge-s3"
-        }
+          service: "eventbridge-s3",
+        },
       })
     );
 
@@ -43,9 +43,9 @@ export const handler: Handler = async event => {
         level: "ERROR",
         message: error.message,
         meta: {
-          service: "eventbridge-s3"
+          service: "eventbridge-s3",
         },
-        stack: error.stack
+        stack: error.stack,
       })
     );
 
