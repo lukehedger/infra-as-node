@@ -21,8 +21,8 @@ import {
   SqsDestination,
 } from "@aws-cdk/aws-lambda-destinations";
 import { SnsEventSource } from "@aws-cdk/aws-lambda-event-sources";
-import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
-import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
+// import { ARecord, HostedZone, RecordTarget } from "@aws-cdk/aws-route53";
+// import { ApiGateway, CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
 import { BlockPublicAccess, Bucket } from "@aws-cdk/aws-s3";
 import { Secret } from "@aws-cdk/aws-secretsmanager";
 import { Topic } from "@aws-cdk/aws-sns";
@@ -220,15 +220,15 @@ export class InfrastructureStack extends Stack {
       restApiName: apiName,
     });
 
-    const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
-      hostedZoneId: "Z0598212RUKTJD8647W3",
-      zoneName: "ian.level-out.com",
-    });
+    // const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
+    //   hostedZoneId: "Z0598212RUKTJD8647W3",
+    //   zoneName: "ian.level-out.com",
+    // });
 
-    new ARecord(this, "APIGatewayAliasRecord", {
-      target: RecordTarget.fromAlias(new ApiGateway(api)),
-      zone: hostedZone,
-    });
+    // new ARecord(this, "APIGatewayAliasRecord", {
+    //   target: RecordTarget.fromAlias(new ApiGateway(api)),
+    //   zone: hostedZone,
+    // });
 
     const eventbridgeProducerResource = api.root.addResource(
       "eventbridge-producer"
@@ -298,12 +298,12 @@ export class InfrastructureStack extends Stack {
       }
     );
 
-    new ARecord(this, "StaticAppDistributionAliasRecord", {
-      target: RecordTarget.fromAlias(
-        new CloudFrontTarget(staticAppDistribution)
-      ),
-      zone: hostedZone,
-    });
+    // new ARecord(this, "StaticAppDistributionAliasRecord", {
+    //   target: RecordTarget.fromAlias(
+    //     new CloudFrontTarget(staticAppDistribution)
+    //   ),
+    //   zone: hostedZone,
+    // });
 
     const godModeDashboardName = process.env.GITHUB_PR_NUMBER
       ? `Dashboard-Integration-${process.env.GITHUB_PR_NUMBER}`
