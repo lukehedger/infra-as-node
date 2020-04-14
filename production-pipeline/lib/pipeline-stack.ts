@@ -74,7 +74,7 @@ export class PipelineStack extends Stack {
             build: {
               commands: [
                 "yarn --cwd cloud-infrastructure build",
-                "yarn --cwd cloud-infrastructure synth",
+                `GITHUB_SHA=${process.env.GITHUB_SHA} yarn --cwd cloud-infrastructure synth`,
                 "yarn layer",
               ],
             },
