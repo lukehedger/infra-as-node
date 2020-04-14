@@ -312,45 +312,42 @@ export class InfrastructureStack extends Stack {
       ? `StaticAppDistribution-Integration-${process.env.GITHUB_PR_NUMBER}`
       : "StaticAppDistribution-Production";
 
-    const staticAppDistribution = new CloudFrontWebDistribution(
-      this,
-      staticAppDistributionName,
-      {
-        errorConfigurations: [
-          {
-            errorCachingMinTtl: 0,
-            errorCode: 403,
-            responseCode: 200,
-            responsePagePath: "/index.html",
+    // const staticAppDistribution = new CloudFrontWebDistribution(
+    new CloudFrontWebDistribution(this, staticAppDistributionName, {
+      errorConfigurations: [
+        {
+          errorCachingMinTtl: 0,
+          errorCode: 403,
+          responseCode: 200,
+          responsePagePath: "/index.html",
+        },
+        {
+          errorCachingMinTtl: 0,
+          errorCode: 404,
+          responseCode: 200,
+          responsePagePath: "/index.html",
+        },
+      ],
+      originConfigs: [
+        {
+          behaviors: [{ isDefaultBehavior: true }],
+          originHeaders: {
+            "Content-Security-Policy":
+              "default-src https: 'unsafe-inline'; img-src https: data: blob:; object-src 'none'; frame-ancestors 'self';",
+            "Strict-Transport-Security":
+              "max-age=63072000; includeSubDomains; preload",
+            "X-Frame-Options": "SAMEORIGIN",
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "X-Content-Type-Options": "nosniff",
+            "X-XSS-Protection": "1; mode=block",
           },
-          {
-            errorCachingMinTtl: 0,
-            errorCode: 404,
-            responseCode: 200,
-            responsePagePath: "/index.html",
-          },
-        ],
-        originConfigs: [
-          {
-            behaviors: [{ isDefaultBehavior: true }],
-            originHeaders: {
-              "Content-Security-Policy":
-                "default-src https: 'unsafe-inline'; img-src https: data: blob:; object-src 'none'; frame-ancestors 'self';",
-              "Strict-Transport-Security":
-                "max-age=63072000; includeSubDomains; preload",
-              "X-Frame-Options": "SAMEORIGIN",
-              "Referrer-Policy": "strict-origin-when-cross-origin",
-              "X-Content-Type-Options": "nosniff",
-              "X-XSS-Protection": "1; mode=block",
-            },
-            s3OriginSource: { s3BucketSource: staticAppBucket },
-          },
-        ],
-        viewerCertificate: ViewerCertificate.fromAcmCertificate(
-          staticAppCertificate
-        ),
-      }
-    );
+          s3OriginSource: { s3BucketSource: staticAppBucket },
+        },
+      ],
+      viewerCertificate: ViewerCertificate.fromAcmCertificate(
+        staticAppCertificate
+      ),
+    });
 
     // new ARecord(this, "StaticAppDistributionAliasRecord", {
     //   target: RecordTarget.fromAlias(
