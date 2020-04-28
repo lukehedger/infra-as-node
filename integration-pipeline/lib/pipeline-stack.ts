@@ -86,6 +86,7 @@ export class PipelineStack extends Stack {
                 "yarn --cwd cloud-infrastructure build",
                 `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
                 "yarn layer:dependency",
+                "yarn layer:pipeline",
               ],
             },
           },
