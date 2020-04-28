@@ -75,7 +75,7 @@ export class PipelineStack extends Stack {
               commands: [
                 "yarn --cwd cloud-infrastructure build",
                 "yarn --cwd cloud-infrastructure synth",
-                "yarn layer",
+                "yarn layer:dependency",
               ],
             },
           },
