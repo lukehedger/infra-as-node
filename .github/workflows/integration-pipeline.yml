@@ -39,6 +39,9 @@ jobs:
     - name: Build GitHub pipeline status Lambda
       run: yarn --cwd pipeline-status build
 
+    - name: Build integration pipeline Lambda Layer
+      run: yarn layer:pipeline
+
     - name: Build integration pipeline
       run: yarn --cwd integration-pipeline build
 
