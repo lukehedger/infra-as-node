@@ -253,6 +253,7 @@ export class PipelineStack extends Stack {
           slackAlertingLambdaBuildOutput,
           dependencyLayerBuildOutput,
         ],
+        replaceOnFailure: true,
       }
     );
 
