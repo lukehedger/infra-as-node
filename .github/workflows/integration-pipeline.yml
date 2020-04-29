@@ -43,7 +43,7 @@ jobs:
       run: yarn layer:pipeline
 
     - name: Debugging layer bin
-    run: rm -rf pipeline-layer/nodejs/node_modules/.bin
+      run: rm -rf pipeline-layer/nodejs/node_modules/.bin
 
     - name: Debugging layer modules
       run: ls -la pipeline-layer/nodejs/node_modules
