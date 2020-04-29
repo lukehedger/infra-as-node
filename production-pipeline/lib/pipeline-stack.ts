@@ -75,7 +75,7 @@ export class PipelineStack extends Stack {
               commands: [
                 "yarn --cwd cloud-infrastructure build",
                 `GITHUB_SHA=${process.env.GITHUB_SHA} yarn --cwd cloud-infrastructure synth`,
-                "yarn layer",
+                "yarn layer:dependency",
               ],
             },
           },
@@ -253,6 +253,7 @@ export class PipelineStack extends Stack {
           slackAlertingLambdaBuildOutput,
           dependencyLayerBuildOutput,
         ],
+        replaceOnFailure: true,
       }
     );
 

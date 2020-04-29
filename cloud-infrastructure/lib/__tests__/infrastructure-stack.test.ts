@@ -12,13 +12,13 @@ beforeAll(() => {
 
 test("Stack has API Gateway EventBridge producer REST API resource", () => {
   expect(stack).toHaveResource("AWS::ApiGateway::RestApi", {
-    Name: "EventBridgeProducerEndpoint-Production"
+    Name: "EventBridgeProducerEndpoint-Production",
   });
 });
 
 test("Stack has API Gateway EventBridge producer endpoint resource", () => {
   expect(stack).toHaveResource("AWS::ApiGateway::Resource", {
-    PathPart: "eventbridge-producer"
+    PathPart: "eventbridge-producer",
   });
 });
 
@@ -28,8 +28,8 @@ test("Stack has API Gateway EventBridge producer Proxy POST method resource", ()
     HttpMethod: "POST",
     Integration: {
       IntegrationHttpMethod: "POST",
-      Type: "AWS_PROXY"
-    }
+      Type: "AWS_PROXY",
+    },
   });
 });
 
@@ -39,7 +39,7 @@ test("Stack has API Gateway EventBridge producer deployment stage resource", () 
     : "prod";
 
   expect(stack).toHaveResourceLike("AWS::ApiGateway::Stage", {
-    StageName: stageName
+    StageName: stageName,
   });
 });
 
@@ -52,12 +52,12 @@ test("Stack has CloudFront static app Distribution resource", () => {
         Compress: true,
         ForwardedValues: {
           Cookies: {
-            Forward: "none"
+            Forward: "none",
           },
-          QueryString: false
+          QueryString: false,
         },
         TargetOriginId: "origin1",
-        ViewerProtocolPolicy: "redirect-to-https"
+        ViewerProtocolPolicy: "redirect-to-https",
       },
       DefaultRootObject: "index.html",
       Enabled: true,
@@ -65,9 +65,11 @@ test("Stack has CloudFront static app Distribution resource", () => {
       IPV6Enabled: true,
       PriceClass: "PriceClass_100",
       ViewerCertificate: {
-        CloudFrontDefaultCertificate: true
-      }
-    }
+        AcmCertificateArn:
+          "arn:aws:acm:us-east-1:614517326458:certificate/31aaf78e-2abb-47af-bffd-e29b987a9d5e",
+        SslSupportMethod: "sni-only",
+      },
+    },
   });
 });
 
@@ -84,7 +86,7 @@ test("Stack has CloudWatch EventBridge consumer Lambda errors Alarm resource", (
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -101,7 +103,7 @@ test("Stack has CloudWatch EventBridge consumer Lambda throttles Alarm resource"
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -118,7 +120,7 @@ test("Stack has CloudWatch EventBridge producer Lambda errors Alarm resource", (
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -135,7 +137,7 @@ test("Stack has CloudWatch EventBridge producer Lambda throttles Alarm resource"
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -152,7 +154,7 @@ test("Stack has CloudWatch EventBridge S3 Lambda errors Alarm resource", () => {
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -169,7 +171,7 @@ test("Stack has CloudWatch EventBridge S3 Lambda throttles Alarm resource", () =
     Namespace: "AWS/Lambda",
     Period: 300,
     Statistic: "Sum",
-    Threshold: 10
+    Threshold: 10,
   });
 });
 
@@ -179,7 +181,7 @@ test("Stack has CloudWatch god mode Dashboard resource", () => {
     : "Dashboard-Production";
 
   expect(stack).toHaveResourceLike("AWS::CloudWatch::Dashboard", {
-    DashboardName: dashboardName
+    DashboardName: dashboardName,
   });
 });
 
@@ -187,11 +189,11 @@ test("Stack has EventBridge consumer Rule resource", () => {
   expect(stack).toHaveResource("AWS::Events::Rule", {
     EventPattern: {
       detail: {
-        status: ["active"]
+        status: ["active"],
       },
-      source: ["com.ian"]
+      source: ["com.ian"],
     },
-    State: "ENABLED"
+    State: "ENABLED",
   });
 });
 
@@ -203,18 +205,18 @@ test("Stack has EventBridge consumer Lambda resource", () => {
   expect(stack).toHaveResource("AWS::Lambda::Function", {
     Code: {
       S3Bucket: {
-        Ref: stack.resolve(stack.eventbridgeConsumerLambdaCode.bucketNameParam)
+        Ref: stack.resolve(stack.eventbridgeConsumerLambdaCode.bucketNameParam),
       },
       S3Key: {
-        Ref: stack.resolve(stack.eventbridgeConsumerLambdaCode.objectKeyParam)
-      }
+        Ref: stack.resolve(stack.eventbridgeConsumerLambdaCode.objectKeyParam),
+      },
     },
     FunctionName: functionName,
     Handler: "consumer.handler",
     Runtime: "nodejs12.x",
     TracingConfig: {
-      Mode: "Active"
-    }
+      Mode: "Active",
+    },
   });
 });
 
@@ -226,18 +228,18 @@ test("Stack has EventBridge producer Lambda resource", () => {
   expect(stack).toHaveResource("AWS::Lambda::Function", {
     Code: {
       S3Bucket: {
-        Ref: stack.resolve(stack.eventbridgeProducerLambdaCode.bucketNameParam)
+        Ref: stack.resolve(stack.eventbridgeProducerLambdaCode.bucketNameParam),
       },
       S3Key: {
-        Ref: stack.resolve(stack.eventbridgeProducerLambdaCode.objectKeyParam)
-      }
+        Ref: stack.resolve(stack.eventbridgeProducerLambdaCode.objectKeyParam),
+      },
     },
     FunctionName: functionName,
     Handler: "producer.handler",
     Runtime: "nodejs12.x",
     TracingConfig: {
-      Mode: "Active"
-    }
+      Mode: "Active",
+    },
   });
 });
 
@@ -249,23 +251,23 @@ test("Stack has EventBridge S3 Lambda resource", () => {
   expect(stack).toHaveResourceLike("AWS::Lambda::Function", {
     Code: {
       S3Bucket: {
-        Ref: stack.resolve(stack.eventbridgeS3LambdaCode.bucketNameParam)
+        Ref: stack.resolve(stack.eventbridgeS3LambdaCode.bucketNameParam),
       },
       S3Key: {
-        Ref: stack.resolve(stack.eventbridgeS3LambdaCode.objectKeyParam)
-      }
+        Ref: stack.resolve(stack.eventbridgeS3LambdaCode.objectKeyParam),
+      },
     },
     Environment: {
       Variables: {
-        BUCKET_NAME: {}
-      }
+        BUCKET_NAME: {},
+      },
     },
     FunctionName: functionName,
     Handler: "consumer.handler",
     Runtime: "nodejs12.x",
     TracingConfig: {
-      Mode: "Active"
-    }
+      Mode: "Active",
+    },
   });
 });
 
@@ -277,23 +279,23 @@ test("Stack has Slack alerting Lambda resource", () => {
   expect(stack).toHaveResource("AWS::Lambda::Function", {
     Code: {
       S3Bucket: {
-        Ref: stack.resolve(stack.slackAlertingLambdaCode.bucketNameParam)
+        Ref: stack.resolve(stack.slackAlertingLambdaCode.bucketNameParam),
       },
       S3Key: {
-        Ref: stack.resolve(stack.slackAlertingLambdaCode.objectKeyParam)
-      }
+        Ref: stack.resolve(stack.slackAlertingLambdaCode.objectKeyParam),
+      },
     },
     Environment: {
       Variables: {
-        AWS_SECRETS_SLACK: "dev/Tread/SlackAPI"
-      }
+        AWS_SECRETS_SLACK: "dev/Tread/SlackAPI",
+      },
     },
     FunctionName: functionName,
     Handler: "alerting.handler",
     Runtime: "nodejs12.x",
     TracingConfig: {
-      Mode: "Active"
-    }
+      Mode: "Active",
+    },
   });
 });
 
@@ -303,7 +305,7 @@ test("Stack has S3 event log Bucket resource", () => {
     : "eventlog-production";
 
   expect(stack).toHaveResource("AWS::S3::Bucket", {
-    BucketName: bucketName
+    BucketName: bucketName,
   });
 });
 
@@ -316,7 +318,7 @@ test("Stack has S3 static app Bucket resource", () => {
     BucketName: bucketName,
     WebsiteConfiguration: {
       ErrorDocument: "index.html",
-      IndexDocument: "index.html"
-    }
+      IndexDocument: "index.html",
+    },
   });
 });

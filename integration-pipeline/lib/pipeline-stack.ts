@@ -18,6 +18,7 @@ import {
   CfnParametersCode,
   Code,
   Function,
+  LayerVersion,
   Runtime,
 } from "@aws-cdk/aws-lambda";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
@@ -84,7 +85,7 @@ export class PipelineStack extends Stack {
               commands: [
                 "yarn --cwd cloud-infrastructure build",
                 `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} GITHUB_SHA=${process.env.GITHUB_SHA} yarn --cwd cloud-infrastructure synth`,
-                "yarn layer",
+                "yarn layer:dependency",
               ],
             },
           },
@@ -262,6 +263,7 @@ export class PipelineStack extends Stack {
           slackAlertingLambdaBuildOutput,
           dependencyLayerBuildOutput,
         ],
+        replaceOnFailure: true,
       }
     );
 
@@ -316,6 +318,11 @@ export class PipelineStack extends Stack {
       }
     );
 
+    const pipelineLayer = new LayerVersion(this, "PipelineLayer", {
+      code: Code.fromAsset("../pipeline-layer"),
+      compatibleRuntimes: [Runtime.NODEJS_12_X],
+    });
+
     const pipelineStatusLambda = new Function(this, "PipelineStatusLambda", {
       code: Code.fromAsset("../pipeline-status/bin"),
       environment: {
@@ -324,6 +331,7 @@ export class PipelineStack extends Stack {
         GITHUB_PR_NUMBER: process.env.GITHUB_PR_NUMBER || "",
       },
       functionName: `PipelineStatus-Integration-${process.env.GITHUB_PR_NUMBER}`,
+      layers: [pipelineLayer],
       handler: "status.handler",
       runtime: Runtime.NODEJS_12_X,
     });
