@@ -42,11 +42,11 @@ jobs:
     - name: Build integration pipeline Lambda Layer
       run: yarn layer:pipeline
 
+    - name: Debugging layer bin
+    run: rm -rf pipeline-layer/nodejs/node_modules/.bin
+
     - name: Debugging layer modules
       run: ls -la pipeline-layer/nodejs/node_modules
-
-    - name: Debugging layer bin
-      run: ls -la pipeline-layer/nodejs/node_modules/.bin
 
     - name: Build integration pipeline
       run: yarn --cwd integration-pipeline build
