@@ -198,22 +198,22 @@ export class InfrastructureStack extends Stack {
       ? `integration-${process.env.GITHUB_PR_NUMBER}`
       : "prod";
 
-    const apiDomainName = "api.ian.level-out.com";
+    // const apiDomainName = "api.ian.level-out.com";
 
-    const apiCertificate = Certificate.fromCertificateArn(
-      this,
-      "APICertificate",
-      "arn:aws:acm:eu-west-2:614517326458:certificate/e92d37e5-9eaa-4a66-a340-a8e136786250"
-    );
+    // const apiCertificate = Certificate.fromCertificateArn(
+    //   this,
+    //   "APICertificate",
+    //   "arn:aws:acm:eu-west-2:614517326458:certificate/e92d37e5-9eaa-4a66-a340-a8e136786250"
+    // );
 
     const api = new LambdaRestApi(this, apiName, {
       deployOptions: {
         stageName: stageName,
       },
-      domainName: {
-        certificate: apiCertificate,
-        domainName: apiDomainName,
-      },
+      // domainName: {
+      //   certificate: apiCertificate,
+      //   domainName: apiDomainName,
+      // },
       endpointExportName: apiName,
       handler: eventbridgeProducerLambda,
       proxy: false,
