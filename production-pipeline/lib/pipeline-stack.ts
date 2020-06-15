@@ -193,7 +193,9 @@ export class PipelineStack extends Stack {
             install: {
               commands: ["npm install --global yarn", "yarn install"],
             },
-            build: { commands: "yarn test" },
+            build: {
+              commands: `GITHUB_SHA=${process.env.GITHUB_SHA} yarn test`,
+            },
           },
         }),
         environment: {
