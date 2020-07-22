@@ -1,5 +1,5 @@
 {
-  "name": "github-pipeline-status",
+  "name": "pipeline-status",
   "private": true,
   "version": "0.0.0",
   "main": "bin/status.js",
