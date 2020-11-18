@@ -1,6 +1,6 @@
 import { Handler } from "aws-lambda";
 
-export const handler: Handler = async event => {
+export const handler: Handler = async (event) => {
   try {
     console.info(
       JSON.stringify({
@@ -8,8 +8,8 @@ export const handler: Handler = async event => {
         level: "INFO",
         message: "Processed event",
         meta: {
-          service: "eventbridge-consumer"
-        }
+          service: "eventbridge-consumer",
+        },
       })
     );
 
@@ -22,9 +22,9 @@ export const handler: Handler = async event => {
         level: "ERROR",
         message: error.message,
         meta: {
-          service: "eventbridge-consumer"
+          service: "eventbridge-consumer",
         },
-        stack: error.stack
+        stack: error.stack,
       })
     );
 

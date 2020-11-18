@@ -1,16 +1,16 @@
 import {
   PutEventsCommand,
-  EventBridgeClient
+  EventBridgeClient,
 } from "@aws-sdk/client-eventbridge-node";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
-  Handler
+  Handler,
 } from "aws-lambda";
 import cuid from "cuid";
 
 const eventbridge = new EventBridgeClient({
-  region: "eu-west-2"
+  region: "eu-west-2",
 });
 
 export const handler: Handler = async (
@@ -25,13 +25,13 @@ export const handler: Handler = async (
           {
             Detail: JSON.stringify({
               correlationID: cuid(),
-              status: body.status
+              status: body.status,
             }),
             DetailType: "AWS Lambda event",
             Source: "com.ian",
-            Time: new Date()
-          }
-        ]
+            Time: new Date(),
+          },
+        ],
       });
 
       const putEvents = await eventbridge.send(putEventsCommand);
@@ -42,22 +42,22 @@ export const handler: Handler = async (
           level: "INFO",
           message: "Put event",
           meta: {
-            service: "eventbridge-producer"
-          }
+            service: "eventbridge-producer",
+          },
         })
       );
 
       return {
         body: JSON.stringify({
           entries: putEvents.Entries,
-          failedEntryCount: putEvents.FailedEntryCount
+          failedEntryCount: putEvents.FailedEntryCount,
         }),
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "POST",
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        statusCode: 200
+        statusCode: 200,
       };
     } else {
       throw new Error("Request body is empty");
@@ -70,9 +70,9 @@ export const handler: Handler = async (
         level: "ERROR",
         message: error.message,
         meta: {
-          service: "eventbridge-producer"
+          service: "eventbridge-producer",
         },
-        stack: error.stack
+        stack: error.stack,
       })
     );
 
@@ -81,9 +81,9 @@ export const handler: Handler = async (
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      statusCode: 500
+      statusCode: 500,
     };
   }
 };

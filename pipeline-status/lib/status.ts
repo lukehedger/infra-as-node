@@ -1,16 +1,16 @@
 import { CodePipelineCloudWatchEvent, Handler } from "aws-lambda";
 import {
   CodePipelineClient,
-  GetPipelineExecutionCommand
+  GetPipelineExecutionCommand,
 } from "@aws-sdk/client-codepipeline-node";
 import {
   GetSecretValueCommand,
-  SecretsManagerClient
+  SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager-node";
 import { Octokit } from "@octokit/rest";
 
 const secretsManager = new SecretsManagerClient({
-  region: "eu-west-2"
+  region: "eu-west-2",
 });
 
 export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
@@ -18,7 +18,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
     const {
       AWS_SECRETS_GITHUB,
       GITHUB_HEAD_REF,
-      GITHUB_PR_NUMBER
+      GITHUB_PR_NUMBER,
     } = process.env;
 
     if (!AWS_SECRETS_GITHUB) {
@@ -34,7 +34,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
     }
 
     const getSecretValueCommand = new GetSecretValueCommand({
-      SecretId: AWS_SECRETS_GITHUB
+      SecretId: AWS_SECRETS_GITHUB,
     });
 
     const secretValue = await secretsManager.send(getSecretValueCommand);
@@ -61,7 +61,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
 
     const getPipelineExecutionCommand = new GetPipelineExecutionCommand({
       pipelineExecutionId: pipelineExecutionID,
-      pipelineName: pipelineName
+      pipelineName: pipelineName,
     });
 
     const codePipelineExecution = await codePipeline.send(
@@ -80,7 +80,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
     }
 
     const [
-      { revisionId, revisionUrl }
+      { revisionId, revisionUrl },
     ] = codePipelineExecution.pipelineExecution.artifactRevisions;
 
     if (!revisionId) {
@@ -127,7 +127,7 @@ export const handler: Handler = async (event: CodePipelineCloudWatchEvent) => {
       repo: repo,
       sha: revisionId,
       state: state,
-      target_url: `https://${eventRegion}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${pipelineName}/executions/${pipelineExecutionID}/visualization?region=${eventRegion}`
+      target_url: `https://${eventRegion}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${pipelineName}/executions/${pipelineExecutionID}/visualization?region=${eventRegion}`,
     });
     /* eslint-enable @typescript-eslint/camelcase */
 
