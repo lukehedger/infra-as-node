@@ -14,5 +14,5 @@ new PipelineStack(app, "PipelineStack", {
   eventbridgeProducerLambdaCode:
     infrastructureStack.eventbridgeProducerLambdaCode,
   eventbridgeS3LambdaCode: infrastructureStack.eventbridgeS3LambdaCode,
-  slackAlertingLambdaCode: infrastructureStack.slackAlertingLambdaCode
+  slackAlertingLambdaCode: infrastructureStack.slackAlertingLambdaCode,
 });

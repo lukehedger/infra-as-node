@@ -1,12 +1,12 @@
 import { Handler, SNSEvent, SNSEventRecord } from "aws-lambda";
 import {
   GetSecretValueCommand,
-  SecretsManagerClient
+  SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager-node";
 import got from "got";
 
 const secretsManager = new SecretsManagerClient({
-  region: "eu-west-2"
+  region: "eu-west-2",
 });
 
 export const handler: Handler = async (event: SNSEvent) => {
@@ -18,7 +18,7 @@ export const handler: Handler = async (event: SNSEvent) => {
     }
 
     const getSecretValueCommand = new GetSecretValueCommand({
-      SecretId: AWS_SECRETS_SLACK
+      SecretId: AWS_SECRETS_SLACK,
     });
 
     const secretValue = await secretsManager.send(getSecretValueCommand);
@@ -41,8 +41,8 @@ export const handler: Handler = async (event: SNSEvent) => {
           await got.post(SLACK_WEBHOOK_URL, {
             body: JSON.stringify({ text: record.Sns.Message }),
             headers: {
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           });
 
           console.info(
@@ -51,8 +51,8 @@ export const handler: Handler = async (event: SNSEvent) => {
               level: "INFO",
               message: "Processed notification record",
               meta: {
-                service: "slack-alerting"
-              }
+                service: "slack-alerting",
+              },
             })
           );
         } catch (error) {
@@ -67,8 +67,8 @@ export const handler: Handler = async (event: SNSEvent) => {
         level: "INFO",
         message: "Processed notification",
         meta: {
-          service: "slack-alerting"
-        }
+          service: "slack-alerting",
+        },
       })
     );
 
@@ -81,9 +81,9 @@ export const handler: Handler = async (event: SNSEvent) => {
         level: "ERROR",
         message: error.message,
         meta: {
-          service: "slack-alerting"
+          service: "slack-alerting",
         },
-        stack: error.stack
+        stack: error.stack,
       })
     );
 

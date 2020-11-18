@@ -19,7 +19,7 @@ test("Stack has CodePipeline pipeline resource", () => {
             ActionTypeId: {
               Category: "Source",
               Owner: "ThirdParty",
-              Provider: "GitHub"
+              Provider: "GitHub",
             },
             Configuration: {
               Owner: "lukehedger",
@@ -27,17 +27,17 @@ test("Stack has CodePipeline pipeline resource", () => {
               Branch: "master",
               OAuthToken:
                 "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}",
-              PollForSourceChanges: false
+              PollForSourceChanges: false,
             },
             Name: "GitHub_Source",
             OutputArtifacts: [
               {
-                Name: "Artifact_Source_GitHub_Source"
-              }
-            ]
-          }
+                Name: "Artifact_Source_GitHub_Source",
+              },
+            ],
+          },
         ],
-        Name: "Source"
+        Name: "Source",
       },
       {
         Actions: [
@@ -45,52 +45,52 @@ test("Stack has CodePipeline pipeline resource", () => {
             ActionTypeId: {
               Category: "Build",
               Owner: "AWS",
-              Provider: "CodeBuild"
+              Provider: "CodeBuild",
             },
             InputArtifacts: [
               {
-                Name: "Artifact_Source_GitHub_Source"
-              }
+                Name: "Artifact_Source_GitHub_Source",
+              },
             ],
             Name: "Microservice_Build",
             OutputArtifacts: [
               {
-                Name: "InfrastructureBuildOutput"
+                Name: "InfrastructureBuildOutput",
               },
               {
-                Name: "ECLBO"
+                Name: "ECLBO",
               },
               {
-                Name: "EPLBO"
+                Name: "EPLBO",
               },
               {
-                Name: "ESLBO"
+                Name: "ESLBO",
               },
               {
-                Name: "SALBO"
-              }
-            ]
+                Name: "SALBO",
+              },
+            ],
           },
           {
             ActionTypeId: {
               Category: "Build",
               Owner: "AWS",
-              Provider: "CodeBuild"
+              Provider: "CodeBuild",
             },
             InputArtifacts: [
               {
-                Name: "Artifact_Source_GitHub_Source"
-              }
+                Name: "Artifact_Source_GitHub_Source",
+              },
             ],
             Name: "StaticApp_Build",
             OutputArtifacts: [
               {
-                Name: "StaticAppBucket"
-              }
-            ]
-          }
+                Name: "StaticAppBucket",
+              },
+            ],
+          },
         ],
-        Name: "Build"
+        Name: "Build",
       },
       {
         Actions: [
@@ -98,7 +98,7 @@ test("Stack has CodePipeline pipeline resource", () => {
             ActionTypeId: {
               Category: "Deploy",
               Owner: "AWS",
-              Provider: "CloudFormation"
+              Provider: "CloudFormation",
             },
             Configuration: {
               StackName: "InfrastructureStack",
@@ -106,48 +106,48 @@ test("Stack has CodePipeline pipeline resource", () => {
               ParameterOverrides: "{}",
               ActionMode: "CREATE_UPDATE",
               TemplatePath:
-                "InfrastructureBuildOutput::InfrastructureStack.template.json"
+                "InfrastructureBuildOutput::InfrastructureStack.template.json",
             },
             InputArtifacts: [
               {
-                Name: "ECLBO"
+                Name: "ECLBO",
               },
               {
-                Name: "EPLBO"
+                Name: "EPLBO",
               },
               {
-                Name: "ESLBO"
+                Name: "ESLBO",
               },
               {
-                Name: "SALBO"
+                Name: "SALBO",
               },
               {
-                Name: "InfrastructureBuildOutput"
-              }
+                Name: "InfrastructureBuildOutput",
+              },
             ],
             Name: "Infrastructure_Deploy",
-            RunOrder: 1
+            RunOrder: 1,
           },
           {
             ActionTypeId: {
               Category: "Deploy",
               Owner: "AWS",
-              Provider: "S3"
+              Provider: "S3",
             },
             Configuration: {
               BucketName: "static-app-production",
-              Extract: "true"
+              Extract: "true",
             },
             InputArtifacts: [
               {
-                Name: "StaticAppBucket"
-              }
+                Name: "StaticAppBucket",
+              },
             ],
             Name: "Static_App_Deploy",
-            RunOrder: 2
-          }
+            RunOrder: 2,
+          },
         ],
-        Name: "Deploy"
+        Name: "Deploy",
       },
       {
         Actions: [
@@ -155,19 +155,19 @@ test("Stack has CodePipeline pipeline resource", () => {
             ActionTypeId: {
               Category: "Test",
               Owner: "AWS",
-              Provider: "CodeBuild"
+              Provider: "CodeBuild",
             },
             InputArtifacts: [
               {
-                Name: "Artifact_Source_GitHub_Source"
-              }
+                Name: "Artifact_Source_GitHub_Source",
+              },
             ],
-            Name: "Workspace_Integration_Test"
-          }
+            Name: "Workspace_Integration_Test",
+          },
         ],
-        Name: "Test"
-      }
-    ]
+        Name: "Test",
+      },
+    ],
   });
 });
 
@@ -175,7 +175,7 @@ test("Stack has CodePipeline GitHub webhook resource", () => {
   expect(stack).toHaveResource("AWS::CodePipeline::Webhook", {
     AuthenticationConfiguration: {
       SecretToken:
-        "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}"
-    }
+        "{{resolve:secretsmanager:dev/Tread/GitHubToken:SecretString:::}}",
+    },
   });
 });
