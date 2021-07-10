@@ -4,11 +4,23 @@ import {
   CloudFrontWebDistribution,
   ViewerCertificate,
 } from "@aws-cdk/aws-cloudfront";
-import { Dashboard, GraphWidget, Row } from "@aws-cdk/aws-cloudwatch";
+import {
+  Alarm,
+  ComparisonOperator,
+  Dashboard,
+  GraphWidget,
+  Row,
+} from "@aws-cdk/aws-cloudwatch";
 import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
+import {
+  LambdaApplication,
+  LambdaDeploymentConfig,
+  LambdaDeploymentGroup,
+} from "@aws-cdk/aws-codedeploy";
 import { EventBus, Rule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import {
+  Alias,
   CfnParametersCode,
   Code,
   Function,
@@ -45,6 +57,12 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
+    const { GITHUB_SHA } = process.env;
+
+    if (!GITHUB_SHA) {
+      throw new Error("GITHUB_SHA is undefined");
+    }
+
     this.dependencyLayerLambdaCode = Code.cfnParameters({
       bucketNameParam: new CfnParameter(this, "BA"),
       objectKeyParam: new CfnParameter(this, "OA"),
@@ -75,6 +93,10 @@ export class InfrastructureStack extends Stack {
       "SlackAPISecret",
       "arn:aws:secretsmanager:eu-west-2:614517326458:secret:dev/Tread/SlackAPI*"
     );
+
+    const lambdaApplication = new LambdaApplication(this, "LambdaApplication", {
+      applicationName: "IANLambdaApplication",
+    });
 
     const dependencyLayer = new LayerVersion(this, "DependencyLayer", {
       code: this.dependencyLayerLambdaCode,
@@ -108,6 +130,9 @@ export class InfrastructureStack extends Stack {
       "EventBridgeConsumerHandler",
       {
         code: this.eventbridgeConsumerLambdaCode,
+        currentVersionOptions: {
+          removalPolicy: RemovalPolicy.DESTROY,
+        },
         functionName: process.env.GITHUB_PR_NUMBER
           ? `EventBridgeConsumer-Integration-${process.env.GITHUB_PR_NUMBER}`
           : "EventBridgeConsumer-Production",
@@ -123,6 +148,35 @@ export class InfrastructureStack extends Stack {
     eventbridgeConsumerRule.addTarget(
       new LambdaFunction(eventbridgeConsumerLambda)
     );
+
+    const eventbridgeConsumerLambdaVersion = eventbridgeConsumerLambda.addVersion(
+      GITHUB_SHA
+    );
+
+    const eventbridgeConsumerLambdaVersionAlias = new Alias(
+      this,
+      "EventBridgeConsumerLambdaAlias",
+      {
+        aliasName: process.env.GITHUB_PR_NUMBER
+          ? `integration-${process.env.GITHUB_PR_NUMBER}`
+          : "production",
+        version: eventbridgeConsumerLambdaVersion,
+      }
+    );
+
+    new LambdaDeploymentGroup(this, "DeploymentGroup", {
+      alarms: [
+        new Alarm(this, "EventBridgeConsumerLambdaDeploymentGroupErrorsAlarm", {
+          comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+          evaluationPeriods: 1,
+          metric: eventbridgeConsumerLambdaVersionAlias.metricErrors(),
+          threshold: 1,
+        }),
+      ],
+      alias: eventbridgeConsumerLambdaVersionAlias,
+      application: lambdaApplication,
+      deploymentConfig: LambdaDeploymentConfig.LINEAR_10PERCENT_EVERY_1MINUTE,
+    });
 
     const eventLogBucketName = process.env.GITHUB_PR_NUMBER
       ? `EventLog-Integration-${process.env.GITHUB_PR_NUMBER}`

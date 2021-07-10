@@ -84,7 +84,7 @@ export class PipelineStack extends Stack {
             build: {
               commands: [
                 "yarn --cwd cloud-infrastructure build",
-                `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn --cwd cloud-infrastructure synth`,
+                `GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} GITHUB_SHA=${process.env.GITHUB_SHA} yarn --cwd cloud-infrastructure synth`,
                 "yarn layer:dependency",
               ],
             },
@@ -202,7 +202,7 @@ export class PipelineStack extends Stack {
               commands: ["npm install --global yarn", "yarn install"],
             },
             build: {
-              commands: `GITHUB_HEAD_REF=${process.env.GITHUB_HEAD_REF} GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} yarn test`,
+              commands: `GITHUB_HEAD_REF=${process.env.GITHUB_HEAD_REF} GITHUB_PR_NUMBER=${process.env.GITHUB_PR_NUMBER} GITHUB_SHA=${process.env.GITHUB_SHA} yarn test`,
             },
           },
         }),
