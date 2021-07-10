@@ -11,8 +11,12 @@ beforeAll(() => {
 });
 
 test("Stack has API Gateway EventBridge producer REST API resource", () => {
+  const apiName = process.env.GITHUB_PR_NUMBER
+    ? `EventBridgeProducerEndpoint-Integration-${process.env.GITHUB_PR_NUMBER}`
+    : "EventBridgeProducerEndpoint-Production";
+
   expect(stack).toHaveResource("AWS::ApiGateway::RestApi", {
-    Name: "EventBridgeProducerEndpoint-Production",
+    Name: apiName,
   });
 });
 
